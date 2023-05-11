@@ -1,0 +1,55 @@
+{
+	"name": "@peckadesign/pd-modal",
+	"title": "PdModal",
+	"version": "1.0.0",
+	"description": "TypeScript plugin for modal window.",
+	"main": "dist/PdModal.js",
+	"unpkg": "dist/PdModal.min.js",
+	"module": "dist/PdModal.esm.js",
+	"types": "dist/index.esm.d.ts",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/peckadesign/pd-modal.git"
+	},
+	"keywords": [
+		"modal",
+		"dialog",
+		"a11y-dialog",
+		"typescript",
+		"vanilla",
+		"javascript"
+	],
+	"author": {
+		"name": "PeckaDesign, s.r.o",
+		"email": "support@peckadesign.cz"
+	},
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/peckadesign/pd-modal/issues"
+	},
+	"homepage": "https://github.com/peckadesign/pd-modal#readme",
+	"dependencies": {
+		"@peckadesign/pd-naja": "^1.0.1",
+		"a11y-dialog": "^7.5.2",
+		"jsx-dom": "^8.0.5"
+	},
+	"scripts": {
+		"build": "NODE_ENV=production rollup -c --bundleConfigAsCjs",
+		"lint": "NODE_ENV=development eslint src --ext .ts --max-warnings=0"
+	},
+	"devDependencies": {
+		"@rollup/plugin-babel": "^6.0.3",
+		"@rollup/plugin-commonjs": "^24.1.0",
+		"@rollup/plugin-node-resolve": "^15.0.2",
+		"@rollup/plugin-terser": "^0.4.1",
+		"@rollup/plugin-typescript": "^11.1.0",
+		"@rushstack/eslint-patch": "^1.2.0",
+		"eslint": "^8.40.0",
+		"eslint-config-prettier": "^8.8.0",
+		"eslint-config-typescript": "^3.0.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"prettier": "^2.8.8",
+		"rollup": "^3.21.6",
+		"typescript": "^5.0.4"
+	}
+}

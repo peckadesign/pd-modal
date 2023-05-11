@@ -1,0 +1,8 @@
+.git/
+.github/
+.idea/
+node_modules/
+.gitignore
+.npmignore
+rollup.config.js
+package-lock.json

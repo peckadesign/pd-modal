@@ -1,0 +1,145 @@
+:root {
+	--pd-modal-overlay-opacity: .54;
+	--pd-modal-closing-duration: 200ms;
+
+	--pd-modal-window-padding: 1rem;
+	--pd-modal-dialog-padding: 1rem;
+}
+
+[data-modal-open] {
+	overflow: hidden !important;
+}
+[data-modal-open][data-modal-scrollbar-offset] {
+	margin-right: var(--scrollbar-width, 0);
+}
+[data-modal-open][data-modal-scrollbar-offset] .pd-modal__window {
+	overflow-y: scroll;
+}
+
+.pd-modal__window {
+	position: fixed;
+	inset: 0;
+	z-index: 101;
+	margin: 0;
+	padding-inline: var(--pd-modal-window-padding);
+	overflow: auto;
+	line-height: 100vh;
+	text-align: center;
+	-webkit-overflow-scrolling: touch;
+
+}
+.pd-modal__window[data-modal-scrollbar-offset] {
+	margin-left: var(--scrollbar-width, 0);
+}
+
+.pd-modal__dialog,
+.pd-modal__overlay {
+	animation: pd-modal__open forwards 300ms ease;
+}
+
+.pd-modal__overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 100;
+	padding: 0;
+	overflow: hidden;
+	background-color: #000;
+	opacity: var(--pd-modal-overlay-opacity);
+	animation-name: pd-modal__open--overlay;
+	transform: translateZ(0);
+}
+
+.pd-modal__dialog {
+	display: inline-block;
+	width: 100%;
+	max-width: 900px;
+	min-height: 25vh;
+	margin: 4rem auto;
+	padding: var(--pd-modal-dialog-padding);
+	overflow: hidden;
+	background: #fff;
+	transform: translateZ(0);
+	vertical-align: middle;
+	text-align: left;
+	line-height: normal;
+}
+
+.pd-modal__header {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 1rem 2rem;
+	text-align: left;
+}
+
+.pd-modal__title {
+	order: -1;
+	flex: 1;
+	margin: 0;
+	text-align: left;
+}
+
+.pd-modal__content {
+	text-align: left;
+	overflow: hidden;
+}
+
+/*
+	Title marked by this data attribute is used by class `PdModal` as `.pd-modal__title`. Its content is
+	replicated automatically into .pd-modal__title and used as aria-labelledby. Therefore we don't want to show
+	it again in content. Alternatively, we might hide .pd-modal__title (but not with `display: none`!). There
+	should be always only one visible on the screen and one visible for screen readers.
+*/
+.pd-modal__content [data-modal-title] {
+	display: none;
+}
+
+.pd-modal__close {
+	position: relative;
+	flex: 0 0 auto;
+	width: 0;
+	height: 0;
+	padding: 2rem 0 0 2rem;
+	margin-left: auto;
+	overflow: hidden;
+	cursor: pointer;
+	text-decoration: none;
+	line-height: 2rem;
+}
+.pd-modal__close:before {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 2rem;
+	content: "×";
+}
+
+
+/* Modifiers */
+.pd-modal[data-modal-closing] .pd-modal__dialog,
+.pd-modal[data-modal-closing] .pd-modal__overlay { animation-duration: var(--pd-modal-closing-duration, 0ms); }
+.pd-modal[data-modal-closing] .pd-modal__dialog { animation-name: pd-modal__close; }
+.pd-modal[data-modal-closing] .pd-modal__overlay { animation-name: pd-modal__close--overlay; }
+
+@keyframes pd-modal__open {
+	0% { opacity: 0; transform: translate3d(0, 50px, 0); }
+	80% { opacity: 1; }
+	100% { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes pd-modal__close {
+	0% { opacity: 1; transform: translate3d(0, 0, 0); }
+	100% { opacity: 0; transform: translate3d(0, 50px, 0); }
+}
+
+@keyframes pd-modal__open--overlay {
+	0% { opacity: 0; }
+	100% { opacity: var(--pd-modal-overlay-opacity); }
+}
+
+@keyframes pd-modal__close--overlay {
+	0% { opacity: var(--pd-modal-overlay-opacity); }
+	100% { opacity: 0; }
+}

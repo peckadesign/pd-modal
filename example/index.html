@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<title>Example use of PdModal</title>
+
+	<link rel="stylesheet"
+	      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+	<script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+	<style type="text/tailwindcss">
+		@layer base {
+			code:where(:not(pre code)) {
+				white-space: nowrap;
+			}
+		}
+	</style>
+	<link rel="stylesheet" href="./css/pd-modal.css"/>
+
+</head>
+<body class="pt-10 px-4 pb-20">
+
+	<div class="prose max-w-[1300px] mx-auto [&>*]:max-w-[800px] [&>*]:mx-auto">
+		<h1>PdModal</h1>
+
+		<div id="dialog" aria-hidden="true" hidden>
+			<h1 data-modal-title>Modal title</h1>
+			<p>Content of the example modal, loaded from <code>id="dialog"</code>.</p>
+			<p>You can also <a href="#dialog2" class="js-modal" data-modal-width="600">navigate inside modal</a>. This can also be combined with <a data-a11y-dialog-hide href="#options-via-data-attributes">data attribute options</a>.</p>
+			<p>
+				Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet, animi beatae cumque delectus dolorem earum enim esse excepturi explicabo facere facilis in itaque mollitia pariatur praesentium quae quaerat, qui quibusdam recusandae rem repellendus sed sunt voluptate! Amet aperiam aspernatur, aut consequatur culpa delectus dignissimos earum, esse, libero magnam necessitatibus nisi officiis quasi ratione rem rerum tempora voluptates. Dolores eligendi inventore iste itaque laborum maxime vel. Ab enim placeat suscipit temporibus totam. Deleniti deserunt eos illum iure laboriosam minima mollitia, placeat tenetur voluptatibus voluptatum. Adipisci cumque delectus dolore eos, esse est impedit incidunt magnam qui rem sit tempora totam voluptate. Consectetur!</p>
+		</div>
+
+		<div id="dialog2" aria-hidden="true" hidden>
+			<h1 data-modal-title>Another modal title</h1>
+			<p>This is a content of <code>id="dialog2"</code>. Closing modal using button is also possible:</p>
+			<p class="text-center">
+				<button type="button" data-a11y-dialog-hide class="inline-flex items-center justify-center my-1 p-3 rounded-md bg-green-300 font-bold">Close modal</button>
+			</p>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad asperiores at, dignissimos doloribus
+				explicabo facilis iure non quasi repellat sequi. Ad dolor fuga illum nam veniam? Amet aut blanditiis
+				doloremque eius eveniet exercitationem explicabo id laborum maiores minus, natus nesciunt qui quidem
+				recusandae, repellendus rerum sed, sint tempore unde veniam?</p>
+		</div>
+
+		<div id="dialogCallbacks" aria-hidden="true" hidden>
+			<h1 data-modal-title>Modal callbacks</h1>
+			<p>This modal has been opened from some callbacks set from opener element.</p>
+			<p>Each callback has <code>event</code><sup>1</sup> passed. This event is one of the type:</p>
+			<ul>
+				<li><code>BeforeOpenEvent</code></li>
+				<li><code>AfterOpenEvent</code></li>
+				<li><code>LoadEvent</code></li>
+				<li><code>BeforeCloseEvent</code></li>
+				<li><code>AfterCloseEvent</code></li>
+			</ul>
+			<p><code>PdModal</code> instance can be retrieved from <code>event.target</code>. There is also an <code>event.detail</code> object containing <code>opener</code> element and <code>event</code> which caused <sup>1</sup> dispatch.</p>
+		</div>
+
+		<h2>Quick start</h2>
+		<pre><code class="language-console">$ npm install @peckadesign/pd-modal</code></pre>
+
+		<pre><code class="language-typescript">import { PdModal } from '@peckadesign/pd-modal'
+
+const modal = new PdModal()</code></pre>
+
+		<p>By default, the modal is automatically binded to link elements with <code>class="js-modal"</code>.</p>
+
+		<h2>Examples</h2>
+		<p class="flex gap-2 p-4 rounded-md bg-blue-50">
+			<span>ℹ️</span>
+			<span>
+				For these examples to work, you have to run <code>npm install & npm run build</code> first.
+			</span>
+		</p>
+
+		<ul>
+			<li><a href="#dialog" class="js-modal">Basic modal, opening <code>#dialog</code></a></li>
+			<li><a href="#dialog" class="js-modal" data-modal-width="500">Custom modal width</a></li>
+			<li><a href="#dialog" class="js-modal" data-modal-class-name="[&>*]:bg-orange-200">Custom class name added to modal window element</a></li>
+			<li>
+				<a href="#dialogCallbacks" class="js-modal"
+				   data-modal-after-open="modalCallbacks.afterOpen"
+				   data-modal-load="modalCallbacks.load"
+				   data-modal-before-close="modalCallbacks.beforeClose"
+				   data-modal-after-close="modalCallbacks.afterClose">
+					Custom listeners, see browser <code>console</code>
+				</a>
+			</li>
+		</ul>
+
+
+		<h2>Accessibility</h2>
+		<p>Modal uses <a href="https://a11y-dialog.netlify.app/" target="_blank">a11y-dialog</a> on background. To ensure that every modal has correctly set up <code>aria-labelledby</code> attribute, the plugin searches for <code>[data-modal-title], h1, h2, h3, h4, h5, h6</code> element (using <code>querySelector</code>) inside content. If some title is found, its content is used as a content for <code>#snippet--pdModalTitle</code> element. You should visually hide one of visible headings as seen in example.</p>
+
+		<h2>Docs</h2>
+		<h3>Options</h3>
+		<p>The constructor recieves <code>options: Partial&lt;PdModalOptions&gt;</code> as a parameter.</p>
+		<div class="!max-w-full overflow-x-auto">
+			<table class="min-w-[900px]">
+				<thead>
+					<tr>
+						<th>Option</th>
+						<th>Type</th>
+						<th>Default value</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><code>width</code></th>
+						<td><code>int</code></td>
+						<td><code>900</code></td>
+						<td>Defines maximum width of modal window.</td>
+					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><code>className</code></th>
+						<td><code>string</code></td>
+						<td><code>''</code></td>
+						<td>Adds class to <code>.pd-modal__window</code> element.</td>
+					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><code>autoBind</code></th>
+						<td><code>boolean</code></td>
+						<td><code>true</code></td>
+						<td>Determines if the modal should automatically bind to <code>selector</code> when constructor is called.</td>
+					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><code>selector</code></th>
+						<td><code>string</code></td>
+						<td><code>'.js-modal'</code></td>
+						<td>Selector for automatic binding.</td>
+					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><code>language</code></th>
+						<td><code>string</code></td>
+						<td><code>document.documentElement.lang || 'en'</code></td>
+						<td>Language of modal UI. If passed string is not found in <code>i18n</code>, default <code>'en'</code> is used.</td>
+					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><code>template</code></th>
+						<td><code>HTMLElemed|undefined</code></td>
+						<td><code>undefined</code></td>
+						<td>
+							Allows you to override the modal template complete. Template should meet accessibility requirements. As this plugin is based on a11y-dialog, this might be <a href="https://a11y-dialog.netlify.app/usage/markup">your starting point</a>. Or you can modify default template from PdModal itself.
+
+							<div class="flex gap-2 my-4 p-4 rounded-md bg-orange-50">
+								<span>⚠️</span>
+								<div>
+									<p class="m-0">Template must include these elements:</p>
+									<ul class="m-0 [&>li]:m-0">
+										<li><code>.pd-modal__overlay</code></li>
+										<li><code>.pd-modal__window</code></li>
+										<li><code>.pd-modal__dialog</code></li>
+										<li><code>.pd-modal__content</code></li>
+										<li><code>.pd-modal__title</code></li>
+									</ul>
+								</div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><code>spinner</code></th>
+						<td><code>Element|string|undefined</code></td>
+						<td><code>undefined</code></td>
+						<td>If you use non-static content loaded using 3<sup>rd</sup> party ajax library (e.g. Naja), this will be used as a placeholder content. It is your responsibility to replace the content when it is ready.
+
+							<p class="flex gap-2 p-4 rounded-md bg-blue-50">
+								<span>💡</span>
+								<span>
+									If you are using Naja, there is a class <code>PdModalNajaAdapter</code> that can be used with <code>AjaxModalExtension</code> from
+									<a href="https://www.npmjs.com/package/@peckadesign/pd-naja-extensions">@peckadesign/pd-naja-extensions</a>.
+								</span>
+							</p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><code>i18n</code></th>
+						<td><pre class="my-0 p-0"><code class="language-typescript">Record&lt;string, {
+		close: string
+		defaultTitle: string
+		loading: string
+	}&gt;|undefined</code></pre></td>
+						<td><code>undefined</code></td>
+						<td>Allows you to add custom language or override existing ones. By default, the plugin supports <code>en</code>, <code>de</code>, <code>cs</code> and <code>sk</code>.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<h3>Events</h3>
+		<p><code>PdModal</code> extends <code>EventTarget</code>, which means you can call <code>addEventListener</code> and <code>removeEventListener</code> directly on instance of the class. There are 5 events you can listen to:</p>
+		<ul>
+			<li><code>beforeOpen</code>&nbsp;&ndash;&nbsp;dispatched before opening the modal. The modal is not in DOM yet.</li>
+			<li><code>afterOpen</code>&nbsp;&ndash;&nbsp;dispatched after the modal has been connected to DOM and opened.</li>
+			<li><code>load</code>&nbsp;&ndash;&nbsp;dispatched when the content has been loaded. When using 3rd party library, you have to dispatch this event yourself.</li>
+			<li><code>beforeClose</code>&nbsp;&ndash;&nbsp;dispatched before closing the modal started.</li>
+			<li><code>afterClose</code>&nbsp;&ndash;&nbsp;dispatched after closing has been finished and modal has been disconnected from DOM.</li>
+		</ul>
+		<p>All these events are typed with its own type (<code>BeforeOpenEvent</code>, <code>AfterOpenEvent</code>, <code>LoadEvent</code>, <code>BeforeCloseEvent</code> and <code>AfterCloseEvent</code>). In the <code>event.detail</code> object there are currently two properties:</p>
+		<ul>
+			<li><code>opener: Element | null</code> containing the element, that opened the modal. This can be possibly null if the modal is opened programatically.</li>
+			<li><code>event: Event | null</code> containing the event causing the opening. This can be null as well if opened programatically.</li>
+		</ul>
+
+		<h3>Methods</h3>
+		<div class="!max-w-none overflow-x-auto">
+			<table class="min-w-[900px]">
+				<thead>
+					<tr>
+						<th>Method</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><pre class="p-0"><code class="language-typescript">open(opener: HTMLElement | SVGElement | null, event?: Event): void</code></pre></th>
+						<td>You can open the modal using this method. You must pass an <code>opener</code> (although it can be null) and optional <code>event</code>. The opener element is used to determine options specific to this modal, see <a href="#options-via-data-attributes">options via data attributes</a>. The <code>opener</code> and <code>event</code> are passed to events dispatched on modal instance.</td>
+					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><pre class="my-0 p-0"><code class="language-typescript">close(event?: Event): void</code></pre></th>
+						<td>This method closes the modal window. The <code>event</code> is passed to events dispatched on modal instance.</td>
+					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><pre class="my-0 p-0"><code class="language-typescript">isOpen(): boolean</code></pre></th>
+						<td>Returns boolean whether this instance of modal is opened.</td>
+					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><pre class="my-0 p-0"><code class="language-typescript">setOptionsFromOpener(): void</code></pre></th>
+						<td>This method sets <a href="#options-via-data-attributes">options defined via data attributes</a> from opener. This is usually done automatically by the modal itself, with the exception of ajax content. In that case you might need to call this method manually. The opener element is determined from last <code>open</code> method call. The <code>open</code> method can be called repeatedly (e.g. when navigating inside modal) in which case, the <code>opener</code> is updated, but unless static content is linked, the data attribute options are not updated and you have to call this method after ajax finishes. See <code>PdModalNajaAdapter</code> for example usage.</td>
+					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><pre class="my-0 p-0"><code class="language-typescript">removeOptionsFromOpener(): void</code></pre></th>
+						<td>Removes all options set from opener element (defined by data attributes). In case of static content, this is called automatically, but with ajax content, you might need to call it manually.</td>
+					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><pre class="my-0 p-0"><code class="language-typescript">removeListenersFromOpener(): void</code></pre></th>
+						<td>Similar to the method above, but only removes listeners defined by data attributes on opener element. See the section about data attributes below for more information why this method exists.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+
+		<h3 id="options-via-data-attributes">Options via data attributes</h3>
+		<p>Options mentioned previously are set to whole instance. You can also modify some of the options directly from opener element. This can be done using data attibutes. There are two groups of data attibutes&nbsp;&ndash;&nbsp;"visual" and "behavioral". Both behave a little differently.</p>
+
+		<h4>Visual data attributes</h4>
+		<p>These options will stay valid until the modal is closed or until they are overriden by different value from another opener element.</p>
+		<div class="overflow-x-auto">
+			<table>
+				<thead>
+					<tr>
+						<th>Data attribute</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><code>data-modal-class-name</code></th>
+						<td>You can modify class added to <code>.pd-modal__window</code> using this attribute. This allows you to add custom classes based on opener element. The <code>className</code> options from constructor options is not affected.</td>
+					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><code>data-modal-width</code></th>
+						<td>Changes the maximum width of the modal.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<h4>Behavioral data attributes</h4>
+		<p>These options will stay valid until the modal is closed or open method is called again (e.g. when navigating inside modal). Using these attributes, you can add callbacks (listeners) specific for the opener. </p>
+
+		<p class="flex gap-2 p-4 rounded-md bg-orange-50">
+			<span>⚠️</span>
+			<span>As of now, there is no possibility to add listener for <code>beforeOpen</code> using data attributes. This event is dispatched before the opener options are set up.</span>
+		</p>
+
+		<p class="flex gap-2 p-4 rounded-md bg-blue-50">
+			<span>💡</span>
+			<span>
+				If you need some listener to "persist" during the navigation inside modal, you have to explicitly set that listener as data attribute to all links inside the modal window again.
+			</span>
+		</p>
+
+		<div class="overflow-x-auto">
+			<table>
+				<thead>
+					<tr>
+						<th>Data attribute</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><code>data-modal-after-open</code></th>
+						<td>Space separated names of callable functions. You can also use namespacing using <code>.</code> in the string name. These functions will be called on <code>afterOpen</code> event dispatch.</td>
+					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><code>data-modal-load</code></th>
+						<td>See above, these functions will be called on <code>load</code> event dispatch.</td>
+					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><code>data-modal-before-close</code></th>
+						<td>See above, these functions will be called on <code>beforeClose</code> event dispatch.</td>
+					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><code>data-modal-after-close</code></th>
+						<td>See above, these functions will be called on <code>afterClose</code> event dispatch.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<script src="../dist/PdModal.js"></script>
+	<script>
+		// Helper functions for establishing scrollbar width
+		function getScrollbarWidth() {
+			const inner = document.createElement('p');
+			inner.style.width = '100%';
+			inner.style.height = '200px';
+
+			const outer = document.createElement('div');
+			outer.style.position = 'absolute';
+			outer.style.top = '0px';
+			outer.style.left = '0px';
+			outer.style.visibility = 'hidden';
+			outer.style.width = '200px';
+			outer.style.height = '150px';
+			outer.style.overflow = 'hidden';
+			outer.appendChild(inner);
+
+			document.body.appendChild(outer);
+			const w1 = inner.offsetWidth;
+			outer.style.overflow = 'scroll';
+			let w2 = inner.offsetWidth;
+			if (w1 === w2) w2 = outer.clientWidth;
+
+			document.body.removeChild(outer);
+
+			return w1 - w2;
+		}
+		function createScrollbarWidthStylesheet() {
+			const styleEl = document.createElement('style');
+			document.head.appendChild(styleEl);
+
+			const styleSheet = styleEl.sheet;
+			styleSheet.insertRule(':root { --scrollbar-width:' + getScrollbarWidth() + 'px; }', styleSheet.cssRules.length);
+		}
+		createScrollbarWidthStylesheet()
+
+		// Modal itself
+		const modal = new PdModal({
+			className: 'prose'
+		})
+
+		window.modalCallbacks = {
+			afterOpen: (event) => {
+				console.log('This is a `beforeOpen` callback from opener element. `PdModal` can be accessed from `event.target`.')
+				console.log(event.target)
+				console.log(event.detail)
+			},
+			load: (event) => {
+				console.log('This is a `load` callback from opener element. `PdModal` can be accessed from `event.target`.')
+				console.log(event.target)
+				console.log(event.detail)
+			},
+			beforeClose: (event) => {
+				console.log('This is a `beforeClose` callback from opener element. `PdModal` can be accessed from `event.target`.')
+				console.log(event.target)
+				console.log(event.detail)
+			},
+			afterClose: (event) => {
+				console.log('This is a `afterClose` callback from opener element. `PdModal` can be accessed from `event.target`.')
+				console.log(event.target)
+				console.log(event.detail)
+			}
+		}
+	</script>
+</body>
+</html>
