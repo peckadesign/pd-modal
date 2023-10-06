@@ -481,11 +481,11 @@ export class PdModal extends EventTarget {
 	) => void
 }
 
-export type BeforeOpenEvent = CustomEvent<{ opener: Element | null; event?: Event | CustomEvent }>
-export type AfterOpenEvent = CustomEvent<{ opener: Element | null; event?: Event | CustomEvent }>
-export type LoadEvent = CustomEvent<{ opener: Element | null; event?: Event | CustomEvent }>
-export type BeforeCloseEvent = CustomEvent<{ opener: Element | null; event?: Event | CustomEvent }>
-export type AfterCloseEvent = CustomEvent<{ opener: Element | null; event?: Event | CustomEvent }>
+export type BeforeOpenEvent = CustomEvent<{ opener: HTMLElement | SVGElement | null; event?: Event | CustomEvent }>
+export type AfterOpenEvent = CustomEvent<{ opener: HTMLElement | SVGElement | null; event?: Event | CustomEvent }>
+export type LoadEvent = CustomEvent<{ opener: HTMLElement | SVGElement | null; event?: Event | CustomEvent }>
+export type BeforeCloseEvent = CustomEvent<{ opener: HTMLElement | SVGElement | null; event?: Event | CustomEvent }>
+export type AfterCloseEvent = CustomEvent<{ opener: HTMLElement | SVGElement | null; event?: Event | CustomEvent }>
 
 interface PdModalEventMap {
 	beforeOpen: BeforeOpenEvent

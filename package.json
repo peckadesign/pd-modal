@@ -29,7 +29,7 @@
 	},
 	"homepage": "https://github.com/peckadesign/pd-modal#readme",
 	"dependencies": {
-		"@peckadesign/pd-naja": "^1.0.1",
+		"@peckadesign/pd-naja": "^1.1.0",
 		"a11y-dialog": "^7.5.2",
 		"jsx-dom": "^8.0.5"
 	},
