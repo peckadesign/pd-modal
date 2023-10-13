@@ -19,9 +19,19 @@ export interface I18nEntry {
 	loading: string
 }
 
+export interface ContentLoader {
+	classList?: string[]
+	matcher: (opener: PdModalOpener) => boolean
+	isAsync: (opener: PdModalOpener) => boolean
+	openContent: (modal: PdModal, opener: PdModalOpener) => boolean
+	autoBind?: (modal: PdModal) => void
+}
+
 const eventMapKeys: (keyof PdModalEventMap)[] = ['beforeOpen', 'afterOpen', 'load', 'beforeClose', 'afterClose']
 
-type PdModalListener = TypedEventListener<PdModal, PdModalEventMap[keyof PdModalEventMap]>
+export type PdModalListener = TypedEventListener<PdModal, PdModalEventMap[keyof PdModalEventMap]>
+
+export type PdModalOpener = HTMLElement | SVGElement | null
 
 export class PdModal extends EventTarget {
 	private a11yDialog: A11yDialog
@@ -36,11 +46,15 @@ export class PdModal extends EventTarget {
 	public readonly content: HTMLElement
 	public readonly title: HTMLElement
 
-	private opener: HTMLElement | SVGElement | null = null
+	private opener: PdModalOpener = null
 	private openerClassList: string[] = []
 	private openerListeners: Partial<Record<keyof PdModalEventMap, PdModalListener[]>> = {}
 
+	private loaderClassList: string[] = []
+
 	private closers: Element[] = []
+
+	private contentLoaders: ContentLoader[] = []
 
 	private _isOpen = false
 	private isBodyOverflowing = false
@@ -112,36 +126,22 @@ export class PdModal extends EventTarget {
 		this.a11yDialog.on('hide', (node, event) => this.dialogOnHide(event))
 
 		this.window.addEventListener('click', this.delegateWindowClick.bind(this))
+	}
 
-		if (this.options.autoBind) {
-			this.autoBind()
+	public registerContentLoader(contentLoader: ContentLoader): void {
+		this.contentLoaders.push(contentLoader)
+
+		if (this.options.autoBind && contentLoader.autoBind) {
+			contentLoader.autoBind(this)
 		}
 	}
 
-	private autoBind(): void {
-		document.addEventListener('click', (event) => {
-			const targetNew = event.button || event.ctrlKey || event.shiftKey || event.altKey || event.metaKey
-			const element = event.target as Element
-			let opener = null
-
-			if (element && element.matches(this.options.selector)) {
-				opener = element as HTMLElement | SVGElement
-			} else {
-				opener = element.closest<HTMLElement | SVGElement>(this.options.selector)
-			}
-
-			if (opener && (this.getHash(opener) || !targetNew)) {
-				event.preventDefault()
-				this.open(opener, event)
-			}
-		})
-	}
-
-	public open(opener: HTMLElement | SVGElement | null, event?: Event): void {
+	public open(opener: PdModalOpener, event?: Event): void {
 		this.opener = opener
 
+		const contentLoader = this.matchContentLoader(opener)
+		const isAsyncContent = contentLoader.isAsync(opener)
 		const alreadyOpen = this.isOpen
-		const isStaticContent = this.isStaticContent()
 		let loaded = false
 
 		if (alreadyOpen) {
@@ -160,20 +160,25 @@ export class PdModal extends EventTarget {
 		}
 
 		// Immediately set options only if either content is static (non ajax link is being loaded) or if the modal
-		// hasn't been opened yet. If the content is ajax loaded and modal has already been opened, the options should
+		// hasn't been opened yet. If the content is async loaded and modal has already been opened, the options should
 		// be set manually after the content has been loaded.
 		//
 		// Same applies to loading the content. If it is static content, we want to open it. Otherwise, we keep the
 		// current content and let ajax library to replace it. We don't want to change the content to default spinner.
 		//
 		// If the content is static and modal is already opened, we remove old listeners first.
-		if (isStaticContent && alreadyOpen) {
+		if (!isAsyncContent && alreadyOpen) {
 			this.removeListenersFromOpener()
 		}
 
-		if (isStaticContent || !alreadyOpen) {
+		if (!isAsyncContent || !alreadyOpen) {
 			this.setOptionsFromOpener()
-			loaded = this.openContent()
+			this.setClassListFromContentLoader(contentLoader)
+			loaded = contentLoader.openContent(this, opener)
+		}
+
+		if (!loaded) {
+			this.element.dataset.modalLoading = 'true'
 		}
 
 		if (!alreadyOpen) {
@@ -193,7 +198,7 @@ export class PdModal extends EventTarget {
 		}
 
 		if (loaded) {
-			this.dispatchEvent(new CustomEvent('load', { detail: { opener, event, content: this.content.innerHTML } }))
+			this.dispatchLoadEvent(opener, event, this.content.innerHTML)
 		}
 	}
 
@@ -231,59 +236,37 @@ export class PdModal extends EventTarget {
 			this.dispatchEvent(new CustomEvent('afterClose', { detail: { opener, event } }))
 
 			this.removeOptionsFromOpener()
+			this.removeClassListFromContentLoader()
+			this.resetContent()
 		}, closingDuration)
 	}
 
-	/**
-	 * @return boolean  Returns if the content is already loaded or not. In case of AJAX returns false, otherwise true.
-	 */
-	private openContent(): boolean {
-		let hash: string | undefined
+	private matchContentLoader(opener: PdModalOpener): ContentLoader {
+		const matchedContentLoader = this.contentLoaders.find((contentLoader) => contentLoader.matcher(opener))
 
-		if (this.opener && (hash = this.getHash(this.opener))) {
-			this.openHtml(this.opener, hash)
-			return true
-		} else {
-			this.openAjax()
-			return false
-		}
-	}
-
-	private isStaticContent(): boolean {
-		return this.opener !== null && this.getHash(this.opener) !== undefined
-	}
-
-	private openHtml(opener: HTMLElement | SVGElement, hash: string): void {
-		const contentElement: HTMLElement | null = document.getElementById(hash)
-
-		if (contentElement) {
-			this.content.innerHTML = contentElement.innerHTML
+		if (!matchedContentLoader) {
+			throw new Error(`PdModal: No content loader matched for opener element.`)
 		}
 
-		const heading = this.getModalTitle(opener)
+		return matchedContentLoader
+	}
 
-		if (heading) {
-			this.title.innerHTML = heading
+	public setModaltitle(title?: string): void {
+		if (title) {
+			this.title.innerHTML = title
 			this.title.hidden = false
 		} else {
 			// Default heading, only for screen reader purposes, therefore hidden with `hidden` attribute
 			this.title.innerHTML = this.i18n[this.options.language].defaultTitle
 			this.title.hidden = true
-			console.warn("Missing modal title, assistive technologies won't be happy 😢")
+			console.warn("PdModal: Missing modal title, assistive technologies won't be happy 😢")
 		}
 	}
 
-	private openAjax(): void {
-		this.element.dataset.modalLoading = 'true'
-
-		if (typeof this.options.spinner === 'string') {
-			this.content.innerHTML = this.options.spinner
-		} else if (this.options.spinner && this.options.spinner instanceof Element) {
-			this.content.innerHTML = ''
-			this.content.appendChild(this.options.spinner)
-		}
-
-		this.title.innerHTML = this.i18n[this.options.language].loading
+	private resetContent(): void {
+		this.title.innerHTML = this.i18n[this.options.language].defaultTitle
+		this.title.hidden = true
+		this.content.replaceChildren()
 	}
 
 	public get isOpen(): boolean {
@@ -294,7 +277,7 @@ export class PdModal extends EventTarget {
 		const i18n = this.i18n[this.options.language]
 
 		return (
-			<div class="pd-modal" id="pdModal" aria-hidden="true" aria-labelledby="snippet--pdModalTitle">
+			<div class="pd-modal" id="pdModal" aria-hidden="true" aria-labelledby="pdModalTitle">
 				<div class="pd-modal__overlay" data-a11y-dialog-hide={true}></div>
 				<div class="pd-modal__window" role="document">
 					<div class="pd-modal__dialog">
@@ -303,12 +286,12 @@ export class PdModal extends EventTarget {
 								{i18n.close}
 							</button>
 
-							<h1 class="pd-modal__title" id="snippet--pdModalTitle">
+							<h1 class="pd-modal__title" id="pdModalTitle">
 								{i18n.defaultTitle}
 							</h1>
 						</header>
 
-						<div class="pd-modal__content" id="snippet--pdModal"></div>
+						<div class="pd-modal__content"></div>
 					</div>
 				</div>
 			</div>
@@ -345,23 +328,14 @@ export class PdModal extends EventTarget {
 		// If the data attribute has been passed & there are old classes, we want to replace classes on window,
 		// therefore remove the old classes first.
 		if (this.openerClassList.length) {
-			this.window.classList.remove(...this.openerClassList)
+			this.element.classList.remove(...this.openerClassList)
 		}
 
 		// Apply new classes from opener
 		if (classListArray.length) {
 			this.openerClassList = classListArray
-			this.window.classList.add(...classListArray)
+			this.element.classList.add(...classListArray)
 		}
-	}
-
-	public removeOptionsFromOpener(): void {
-		this.dialog.style.removeProperty('max-width')
-
-		this.window.classList.remove(...this.openerClassList)
-		this.openerClassList = []
-
-		this.removeListenersFromOpener()
 	}
 
 	private setListenersFromOpener(): void {
@@ -376,6 +350,15 @@ export class PdModal extends EventTarget {
 				this.addEventListener(eventName, listener)
 			})
 		})
+	}
+
+	public removeOptionsFromOpener(): void {
+		this.dialog.style.removeProperty('max-width')
+
+		this.element.classList.remove(...this.openerClassList)
+		this.openerClassList = []
+
+		this.removeListenersFromOpener()
 	}
 
 	public removeListenersFromOpener(): void {
@@ -402,6 +385,19 @@ export class PdModal extends EventTarget {
 		return listeners
 	}
 
+	private setClassListFromContentLoader(contentLoader: ContentLoader): void {
+		this.element.classList.remove(...this.loaderClassList)
+
+		if (contentLoader.classList) {
+			this.loaderClassList = contentLoader.classList
+			this.element.classList.add(...contentLoader.classList)
+		}
+	}
+
+	private removeClassListFromContentLoader(): void {
+		this.element.classList.remove(...this.loaderClassList)
+	}
+
 	private delegateWindowClick(event: Event): void {
 		if (event.target === this.window) {
 			this.overlay.click()
@@ -410,31 +406,6 @@ export class PdModal extends EventTarget {
 
 	private getEventDataAttributeName(eventName: keyof PdModalEventMap): string {
 		return `data-modal-${kebabize(eventName)}`
-	}
-
-	private getModalTitle(opener: HTMLElement | SVGElement): string | undefined {
-		let heading = opener.dataset.modalTitle
-
-		if (!heading) {
-			const headingElement = this.content.querySelector<HTMLElement>('[data-modal-title], h1, h2, h3, h4, h5, h6')
-			heading = headingElement?.innerHTML
-		}
-
-		return heading
-	}
-
-	private getHash(opener: HTMLElement | SVGElement): string | undefined {
-		if (opener.dataset.modalHash) {
-			return opener.dataset.modalHash
-		}
-
-		if (opener instanceof HTMLAnchorElement) {
-			const href = opener.getAttribute('href')
-
-			return href && href[0] === '#' ? href.slice(1) : undefined
-		}
-
-		return undefined
 	}
 
 	private addClosersFromContent(): void {
@@ -469,6 +440,10 @@ export class PdModal extends EventTarget {
 		}
 	}
 
+	public dispatchLoadEvent(opener: PdModalOpener, event?: Event, content?: string): void {
+		this.dispatchEvent(new CustomEvent('load', { detail: { opener, event, content } }))
+	}
+
 	public declare addEventListener: <K extends keyof PdModalEventMap | string>(
 		type: K,
 		listener: TypedEventListener<PdModal, K extends keyof PdModalEventMap ? PdModalEventMap[K] : CustomEvent>,
@@ -481,11 +456,11 @@ export class PdModal extends EventTarget {
 	) => void
 }
 
-export type BeforeOpenEvent = CustomEvent<{ opener: HTMLElement | SVGElement | null; event?: Event | CustomEvent }>
-export type AfterOpenEvent = CustomEvent<{ opener: HTMLElement | SVGElement | null; event?: Event | CustomEvent }>
-export type LoadEvent = CustomEvent<{ opener: HTMLElement | SVGElement | null; event?: Event | CustomEvent }>
-export type BeforeCloseEvent = CustomEvent<{ opener: HTMLElement | SVGElement | null; event?: Event | CustomEvent }>
-export type AfterCloseEvent = CustomEvent<{ opener: HTMLElement | SVGElement | null; event?: Event | CustomEvent }>
+export type BeforeOpenEvent = CustomEvent<{ opener: PdModalOpener; event?: Event | CustomEvent }>
+export type AfterOpenEvent = CustomEvent<{ opener: PdModalOpener; event?: Event | CustomEvent }>
+export type LoadEvent = CustomEvent<{ opener: PdModalOpener; event?: Event | CustomEvent; content?: string }>
+export type BeforeCloseEvent = CustomEvent<{ opener: PdModalOpener; event?: Event | CustomEvent }>
+export type AfterCloseEvent = CustomEvent<{ opener: PdModalOpener; event?: Event | CustomEvent }>
 
 interface PdModalEventMap {
 	beforeOpen: BeforeOpenEvent

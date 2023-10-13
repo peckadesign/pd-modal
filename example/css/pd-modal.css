@@ -91,7 +91,7 @@
 	should be always only one visible on the screen and one visible for screen readers.
 */
 .pd-modal__content [data-modal-title] {
-	display: none;
+	display:none;
 }
 
 .pd-modal__close {

@@ -64,11 +64,16 @@
 		<h2>Quick start</h2>
 		<pre><code class="language-console">$ npm install @peckadesign/pd-modal</code></pre>
 
-		<pre><code class="language-typescript">import { PdModal } from '@peckadesign/pd-modal'
+		<pre><code class="language-typescript">import { PdModal, HTMLContentLoader } from '@peckadesign/pd-modal'
 
-const modal = new PdModal()</code></pre>
+const modal = new PdModal()
+modal.registerContentLoader(new HTMLContentLoader())</code></pre>
 
-		<p>By default, the modal is automatically binded to link elements with <code>class="js-modal"</code>.</p>
+
+		<p>This code will create instance of a modal window. The content itself is loaded using <a href="#content-loaders">content loaders</a>. This allows you to import only loaders you actually need in your project.</p>
+		<p>When <code>HTMLContentLoader</code> is registered, the modal is automatically binded to link elements with <code>class="js-modal"</code> by default.</p>
+
+		<p>Usage with UMD package is slightly diferrent, see this example source code for a reference.</p>
 
 		<h2>Examples</h2>
 		<p class="flex gap-2 p-4 rounded-md bg-blue-50">
@@ -81,7 +86,7 @@ const modal = new PdModal()</code></pre>
 		<ul>
 			<li><a href="#dialog" class="js-modal">Basic modal, opening <code>#dialog</code></a></li>
 			<li><a href="#dialog" class="js-modal" data-modal-width="500">Custom modal width</a></li>
-			<li><a href="#dialog" class="js-modal" data-modal-class-name="[&>*]:bg-orange-200">Custom class name added to modal window element</a></li>
+			<li><a href="#dialog" class="js-modal" data-modal-class-name="[&>*>*]:bg-orange-200">Custom class name added to modal element</a></li>
 			<li>
 				<a href="#dialogCallbacks" class="js-modal"
 				   data-modal-after-open="modalCallbacks.afterOpen"
@@ -95,7 +100,7 @@ const modal = new PdModal()</code></pre>
 
 
 		<h2>Accessibility</h2>
-		<p>Modal uses <a href="https://a11y-dialog.netlify.app/" target="_blank">a11y-dialog</a> on background. To ensure that every modal has correctly set up <code>aria-labelledby</code> attribute, the plugin searches for <code>[data-modal-title], h1, h2, h3, h4, h5, h6</code> element (using <code>querySelector</code>) inside content. If some title is found, its content is used as a content for <code>#snippet--pdModalTitle</code> element. You should visually hide one of visible headings as seen in example.</p>
+		<p>Modal uses <a href="https://a11y-dialog.netlify.app/" target="_blank">a11y-dialog</a> on background. To ensure that every modal has correctly set up <code>aria-labelledby</code> attribute, the plugin searches for <code>[data-modal-title], h1, h2, h3, h4, h5, h6</code> element (using <code>querySelector</code>) inside content. If some title is found, its content is used as a content for <code>.pd-modal__title</code> element. You should visually hide one of visible headings as seen in example.</p>
 
 		<h2>Docs</h2>
 		<h3>Options</h3>
@@ -121,7 +126,7 @@ const modal = new PdModal()</code></pre>
 						<th scope="row" class="py-2 align-baseline"><code>className</code></th>
 						<td><code>string</code></td>
 						<td><code>''</code></td>
-						<td>Adds class to <code>.pd-modal__window</code> element.</td>
+						<td>Adds class to <code>.pd-modal</code> element.</td>
 					</tr>
 					<tr>
 						<th scope="row" class="py-2 align-baseline"><code>autoBind</code></th>
@@ -218,6 +223,10 @@ const modal = new PdModal()</code></pre>
 				</thead>
 				<tbody>
 					<tr>
+						<th scope="row" class="py-2 align-baseline"><pre class="p-0"><code class="language-typescript">registerContentLoader(contentLoader: ContentLoader): void</code></pre></th>
+						<td>This method registers new content loader for a modal window. Recieves instance of class which must implement <code>ContentLoader</code> interface.</td>
+					</tr>
+					<tr>
 						<th scope="row" class="py-2 align-baseline"><pre class="p-0"><code class="language-typescript">open(opener: HTMLElement | SVGElement | null, event?: Event): void</code></pre></th>
 						<td>You can open the modal using this method. You must pass an <code>opener</code> (although it can be null) and optional <code>event</code>. The opener element is used to determine options specific to this modal, see <a href="#options-via-data-attributes">options via data attributes</a>. The <code>opener</code> and <code>event</code> are passed to events dispatched on modal instance.</td>
 					</tr>
@@ -262,7 +271,7 @@ const modal = new PdModal()</code></pre>
 				<tbody>
 					<tr>
 						<th scope="row" class="py-2 align-baseline"><code>data-modal-class-name</code></th>
-						<td>You can modify class added to <code>.pd-modal__window</code> using this attribute. This allows you to add custom classes based on opener element. The <code>className</code> options from constructor options is not affected.</td>
+						<td>You can modify class added to <code>.pd-modal</code> using this attribute. This allows you to add custom classes based on opener element. The <code>className</code> options from constructor options is not affected.</td>
 					</tr>
 					<tr>
 						<th scope="row" class="py-2 align-baseline"><code>data-modal-width</code></th>
@@ -315,6 +324,45 @@ const modal = new PdModal()</code></pre>
 				</tbody>
 			</table>
 		</div>
+
+		<h2 id="content-loaders">Content loaders</h2>
+		<p>Content loading is done using ContentLoader classes. You can use those provided in this package or create your own. Whenever the <code>open</code> is called, PdModal tries to find appropriate loader. This is handled by <code>matcher</code> methods in each loader. The first content loader whose <code>matcher</code> method returns true is used.</p>
+		<pre class="!max-w-none"><code class="language-typescript">export interface ContentLoader {
+	classList?: string[]                                            // default classes applied to modal element when the loader is used, removed when other loader is matched
+	matcher: (opener: PdModalOpener) => boolean                     // returns whether loader should be used for the passed opener
+	isAsync: (opener: PdModalOpener) => boolean                     // returns whether the loading is async
+	openContent: (modal: PdModal, opener: PdModalOpener) => boolean // returns whether the content has been loaded yet
+	autoBind?: (modal: PdModal) => void                             // if `autoBind` option is true, this method is called upon loader registration
+}</code></pre>
+
+		<h3>HTMLContentLoader</h3>
+		<p>This loader is used for static content linked using id hash. Modal title is either content of <code>title</code> attribute of the opener element, or the content of the first element inside the content matchind the selector <code>[data-modal-title], h1, h2, h3, h4, h5, h6</code>. </p>
+
+		<div class="flex gap-2 my-4 p-4 rounded-md bg-orange-50">
+			<span>⚠️</span>
+			<div>
+				<p class="m-0">If neither of above is found, warning is issued to the console. The modal title should always be present for assistive technologies.</p>
+			</div>
+		</div>
+
+		<h3>NajaContentLoader</h3>
+		<p>This loader can be used for loading content using <a href="https://naja.js.org/">Naja</a> library. This loader requires a few prerequsities to work properly:</p>
+		<ol>
+			<li>As Naja is library for Nette framework, you need to modify modal template so it uses snippets. E.g. you can add <code>id="snippet--pdModalTitle"</code> and <code>snippet--pdModalContent</code> to the title and content elements. Then when the AJAX request is made, you can redraw these snippets in Nette.
+
+				<div class="flex gap-2 my-4 p-4 rounded-md bg-orange-50">
+					<span>⚠️</span>
+					<div>
+						<p class="m-0">When modifying the template and changing id attributes, you have to make sure that <code>aria-labelledby</code> on <code>.pd-modal</code> element points to title element.</p>
+					</div>
+				</div></li>
+			<li>For a proper history management, you need to download <a href="https://www.npmjs.com/package/@peckadesign/pd-naja">@peckadesign/pd-naja</a> library. Namely you want to use <code>AjaxModalExtension</code> for Naja. The <code>PdModalNajaAdapter</code> class is distributed in this package so you can use it together.</li>
+			<li>After configuring the adapter (e.g. setting up the modal reserved ID's for snippets) you need to add <code>data-naja-modal</code> attribute to each AJAX link you open in modal.</li>
+		</ol>
+
+
+		<h3>Creating custom loader</h3>
+		<p>tba, explain return values of isAsync and openContent</p>
 	</div>
 
 	<script src="../dist/PdModal.js"></script>
@@ -355,9 +403,10 @@ const modal = new PdModal()</code></pre>
 		createScrollbarWidthStylesheet()
 
 		// Modal itself
-		const modal = new PdModal({
+		const modal = new PdModal.create({
 			className: 'prose'
 		})
+		modal.registerContentLoader(new PdModal.HTMLContentLoader());
 
 		window.modalCallbacks = {
 			afterOpen: (event) => {

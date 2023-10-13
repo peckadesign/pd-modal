@@ -43,9 +43,7 @@ export class PdModalNajaAdapter implements AjaxModal {
 	}
 
 	public dispatchLoad(options: PdModalAjaxOptions, event: Event): void {
-		this.pdModal.dispatchEvent(
-			new CustomEvent('load', { detail: { opener: this.getOpenerFromOptions(options), event } })
-		)
+		this.pdModal.dispatchLoadEvent(this.getOpenerFromOptions(options), event)
 	}
 
 	public getOptions(element: Element): PdModalAjaxOptions {
