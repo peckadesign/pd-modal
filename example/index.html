@@ -576,7 +576,9 @@ modal.registerContentLoader(new HTMLContentLoader())</code></pre>
 		modal.registerContentLoader(new PdModal.HTMLContentLoader());
 		modal.registerContentLoader(new PdModal.MediaGalleryContentLoader({
 			thumbnails: true,
-			sizes: '' // todo
+			sizes:
+				'(min-width: 964px) 900px,' +
+				'calc(100vw - 2 * 16px - 2 * 16px)'
 		}));
 
 		window.modalCallbacks = {
