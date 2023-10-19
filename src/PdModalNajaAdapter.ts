@@ -18,10 +18,8 @@ export class PdModalNajaAdapter implements AjaxModal {
 		this.reservedSnippetIds = reservedSnippetIds
 	}
 
-	public show(opener: Element | undefined, options: PdModalAjaxOptions, event: Event): void {
-		const openerElement = opener ? (opener as HTMLElement | SVGElement) : this.getOpenerFromOptions(options)
-
-		this.pdModal.open(openerElement, event)
+	public show(opener: Element, options: PdModalAjaxOptions, event: Event): void {
+		this.pdModal.open(opener as HTMLElement | SVGElement, event)
 	}
 
 	public hide(event: Event): void {
@@ -45,9 +43,7 @@ export class PdModalNajaAdapter implements AjaxModal {
 	}
 
 	public dispatchLoad(options: PdModalAjaxOptions, event: Event): void {
-		this.pdModal.dispatchEvent(
-			new CustomEvent('load', { detail: { opener: this.getOpenerFromOptions(options), event } })
-		)
+		this.pdModal.dispatchLoadEvent(this.getOpenerFromOptions(options), event)
 	}
 
 	public getOptions(element: Element): PdModalAjaxOptions {
