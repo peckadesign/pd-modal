@@ -6,7 +6,6 @@ export type PdModalMediaOptions = {
 	infinitePager: boolean
 	sizes?: string
 	thumbnails: boolean
-	thumbnailsAlignOnShow: ScrollIntoViewOptions
 }
 
 export type I18nMediaGalleryEntry = {
@@ -21,6 +20,7 @@ type Relation = {
 	opener: HTMLAnchorElement
 	mediaElement: HTMLElement
 	pages: HTMLAnchorElement[]
+	thumbnailsList?: HTMLElement | null
 	thumbnails: HTMLAnchorElement[]
 	pagesSummary?: HTMLElement
 	prev?: HTMLAnchorElement
@@ -54,12 +54,7 @@ export class MediaGalleryContentLoader implements ContentLoader {
 
 	private readonly defaults: PdModalMediaOptions = {
 		infinitePager: false,
-		thumbnails: false,
-		thumbnailsAlignOnShow: {
-			behavior: 'smooth',
-			block: 'nearest',
-			inline: 'center'
-		}
+		thumbnails: false
 	}
 
 	public constructor(options?: Partial<PdModalMediaOptions>) {
@@ -114,10 +109,10 @@ export class MediaGalleryContentLoader implements ContentLoader {
 
 		// Must be after `this.relation` has been set up
 		const pagerElement = this.createPager()
-		const thumbnailElement = this.createThumbnails()
+		this.relation.thumbnailsList = this.createThumbnails()
 
 		modal.content.replaceChildren(
-			...([pagerElement, mediaElement, thumbnailElement].filter((item) => item !== null) as HTMLElement[])
+			...([pagerElement, mediaElement, this.relation.thumbnailsList].filter((item) => item !== null) as HTMLElement[])
 		)
 
 		this.setActivePage(this.relation.relatedOpeners.findIndex((opener) => opener.href === openerAnchor.href))
@@ -343,7 +338,7 @@ export class MediaGalleryContentLoader implements ContentLoader {
 		// Active thumbnail & scroll to it
 		relation.thumbnails[relation.activeIndex]?.classList.remove(this.thumbnailActiveclass)
 		relation.thumbnails[index]?.classList.add(this.thumbnailActiveclass)
-		relation.thumbnails[index]?.scrollIntoView(this.options.thumbnailsAlignOnShow)
+		this.scrollThumbnailIntoView(index)
 
 		// Set disabled classes on prev/next
 		relation.prev?.classList.toggle(this.prevNextDisabledClass, index === 0 && !this.options.infinitePager)
@@ -358,7 +353,25 @@ export class MediaGalleryContentLoader implements ContentLoader {
 		relation.activeIndex = index
 	}
 
-	private updateMediaElement(opener: HTMLAnchorElement) {
+	private scrollThumbnailIntoView(index: number): void {
+		const relation = this.relation as Relation
+
+		if (!relation.thumbnailsList || !relation.thumbnails[index]) {
+			return
+		}
+
+		relation.thumbnailsList.scrollTo({
+			top:
+				relation.thumbnails[index].offsetTop -
+				(relation.thumbnailsList.clientHeight - relation.thumbnails[index].clientHeight) / 2,
+			left:
+				relation.thumbnails[index].offsetLeft -
+				(relation.thumbnailsList.clientWidth - relation.thumbnails[index].clientWidth) / 2,
+			behavior: 'auto'
+		})
+	}
+
+	private updateMediaElement(opener: HTMLAnchorElement): void {
 		const relation = this.relation as Relation
 
 		const newMediaElement = this.createMediaElement(relation.modal, opener)

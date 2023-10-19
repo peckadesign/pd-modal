@@ -185,20 +185,22 @@
 }
 
 .pd-modal__thumbnail-list {
+	position: relative;
 	display: flex;
+	gap: 1rem;
 	width: fit-content;
 	padding: 5px !important;
 	margin: 0 auto !important;
 	overflow-x: auto;
 	list-style-type: none !important;
-	gap: calc(1rem - 2 * 5px);
+	scroll-behavior: smooth;
 	-webkit-overflow-scrolling: touch;
 }
 
 .pd-modal__thumbnail-item {
 	flex: 0 0 auto;
-	margin: 0;
-	padding: 0;
+	margin: 0 !important;
+	padding: 0 !important;
 }
 
 .pd-modal__thumbnail-link {
