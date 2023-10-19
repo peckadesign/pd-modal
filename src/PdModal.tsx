@@ -2,7 +2,7 @@ import React from 'jsx-dom'
 import A11yDialog from 'a11y-dialog'
 import { getFunction, isBodyOverflowing, isElementOverflowing, kebabize, TypedEventListener } from './utils'
 
-export interface PdModalOptions {
+export type PdModalOptions = {
 	width: number
 	className: string
 	autoBind: boolean
@@ -13,7 +13,7 @@ export interface PdModalOptions {
 	i18n?: Record<string, I18nEntry>
 }
 
-export interface I18nEntry {
+export type I18nEntry = {
 	close: string
 	defaultTitle: string
 	loading: string
@@ -21,10 +21,16 @@ export interface I18nEntry {
 
 export interface ContentLoader {
 	classList?: string[]
+	listeners?: ContentLoaderListener<keyof HTMLElementEventMap>[]
 	matcher: (opener: PdModalOpener) => boolean
 	isAsync: (opener: PdModalOpener) => boolean
 	openContent: (modal: PdModal, opener: PdModalOpener) => boolean
 	autoBind?: (modal: PdModal) => void
+}
+
+export type ContentLoaderListener<T extends keyof HTMLElementEventMap> = {
+	eventName: T
+	listener: (event: HTMLElementEventMap[T]) => void
 }
 
 const eventMapKeys: (keyof PdModalEventMap)[] = ['beforeOpen', 'afterOpen', 'load', 'beforeClose', 'afterClose']
@@ -51,6 +57,7 @@ export class PdModal extends EventTarget {
 	private openerListeners: Partial<Record<keyof PdModalEventMap, PdModalListener[]>> = {}
 
 	private loaderClassList: string[] = []
+	private loaderListeners: ContentLoaderListener<keyof HTMLElementEventMap>[] = []
 
 	private closers: Element[] = []
 
@@ -146,6 +153,9 @@ export class PdModal extends EventTarget {
 
 		if (alreadyOpen) {
 			this.removeClosersFromContent()
+
+			// Keep the focus inside modal when changing content
+			this.element.focus()
 		}
 
 		if (!alreadyOpen) {
@@ -173,7 +183,7 @@ export class PdModal extends EventTarget {
 
 		if (!isAsyncContent || !alreadyOpen) {
 			this.setOptionsFromOpener()
-			this.setClassListFromContentLoader(contentLoader)
+			this.setOptionsFromContentLoader(contentLoader)
 			loaded = contentLoader.openContent(this, opener)
 		}
 
@@ -236,7 +246,7 @@ export class PdModal extends EventTarget {
 			this.dispatchEvent(new CustomEvent('afterClose', { detail: { opener, event } }))
 
 			this.removeOptionsFromOpener()
-			this.removeClassListFromContentLoader()
+			this.removeOptionsFromContentLoader()
 			this.resetContent()
 		}, closingDuration)
 	}
@@ -385,8 +395,13 @@ export class PdModal extends EventTarget {
 		return listeners
 	}
 
+	private setOptionsFromContentLoader(contentLoader: ContentLoader): void {
+		this.setClassListFromContentLoader(contentLoader)
+		this.setListenersFromContentLoader(contentLoader)
+	}
+
 	private setClassListFromContentLoader(contentLoader: ContentLoader): void {
-		this.element.classList.remove(...this.loaderClassList)
+		this.removeClassListFromPreviousContentLoader()
 
 		if (contentLoader.classList) {
 			this.loaderClassList = contentLoader.classList
@@ -394,8 +409,28 @@ export class PdModal extends EventTarget {
 		}
 	}
 
-	private removeClassListFromContentLoader(): void {
+	private setListenersFromContentLoader(contentLoader: ContentLoader): void {
+		this.removeListenersFromPreviousContentLoader()
+
+		contentLoader.listeners?.forEach((contentLoaderListener) => {
+			this.element.addEventListener(contentLoaderListener.eventName, contentLoaderListener.listener)
+			this.loaderListeners.push(contentLoaderListener)
+		})
+	}
+
+	private removeOptionsFromContentLoader(): void {
+		this.removeClassListFromPreviousContentLoader()
+		this.removeListenersFromPreviousContentLoader()
+	}
+
+	private removeClassListFromPreviousContentLoader(): void {
 		this.element.classList.remove(...this.loaderClassList)
+	}
+
+	private removeListenersFromPreviousContentLoader(): void {
+		this.loaderListeners.forEach((contentLoaderListener) => {
+			this.element.removeEventListener(contentLoaderListener.eventName, contentLoaderListener.listener)
+		})
 	}
 
 	private delegateWindowClick(event: Event): void {

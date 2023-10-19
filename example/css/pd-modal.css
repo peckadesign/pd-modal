@@ -116,12 +116,129 @@
 	content: "×";
 }
 
+.pd-modal__media-box {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	aspect-ratio: 16 / 9;
+}
+
+.pd-modal__media--iframe {
+	width: 100%;
+	height: 100%;
+}
+
+.pd-modal__media-caption {
+	--inset: 0;
+
+	position: absolute;
+	inset: auto auto var(--inset) var(--inset);
+	display: -webkit-box;
+	max-width: calc(100% - 2 * var(--inset));
+	background: rgba(0 0 0 / 50%);
+	backdrop-filter: blur(10px);
+	border: .5rem solid transparent; /* instead of padding so the line clamp works */
+	color: white !important;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+@media (min-width: 768px) {
+	.pd-modal__media-caption {
+		--inset: 1rem;
+		border-width: .75rem;
+		border-radius: 5px;
+
+		-webkit-line-clamp: 4;
+	}
+}
+
+.pd-modal__pager {
+	display: grid;
+	grid-template-areas:
+			"prev pages next"
+			"prev summary next";
+	justify-content: space-between;
+	grid-template-columns: 1fr 4fr 1fr;
+	place-items: center;
+}
+
+.pd-modal__page {
+	transition: all 300ms ease;
+}
+.pd-modal__page--prev { grid-area: prev; }
+.pd-modal__page--next { grid-area: next; }
+.pd-modal__pages { grid-area: pages; }
+.pd-modal__pages-summary { grid-area: summary; }
+
+.pd-modal__page--disabled {
+	opacity: 0.5;
+	text-decoration: none !important;
+	pointer-events: none;
+}
+
+.pd-modal__page--active {
+	text-decoration: none !important;
+}
+
+.pd-modal__thumbnail-list {
+	display: flex;
+	width: fit-content;
+	padding: 5px !important;
+	margin: 0 auto !important;
+	overflow-x: auto;
+	list-style-type: none !important;
+	gap: calc(1rem - 2 * 5px);
+	-webkit-overflow-scrolling: touch;
+}
+
+.pd-modal__thumbnail-item {
+	flex: 0 0 auto;
+	margin: 0;
+	padding: 0;
+}
+
+.pd-modal__thumbnail-link {
+	position: relative;
+	display: block;
+}
+
+.pd-modal__thumbnail-link:before {
+	position: absolute;
+	inset: -5px;
+	border-radius: 5px;
+	background: rgba(0 0 0 / 15%);
+	content: "";
+	transition: opacity 300ms ease;
+	opacity: 0;
+}
+.pd-modal__thumbnail-link--active:before {
+	opacity: 1;
+}
+
+.pd-modal__thumbnail {
+	display: block;
+	width: 100px;
+	aspect-ratio: 16 / 9;
+	margin: 0 !important;
+	border-radius: 0;
+	object-fit: scale-down;
+	object-position: center;
+}
+
 
 /* Modifiers */
 .pd-modal[data-modal-closing] .pd-modal__dialog,
 .pd-modal[data-modal-closing] .pd-modal__overlay { animation-duration: var(--pd-modal-closing-duration, 0ms); }
 .pd-modal[data-modal-closing] .pd-modal__dialog { animation-name: pd-modal__close; }
 .pd-modal[data-modal-closing] .pd-modal__overlay { animation-name: pd-modal__close--overlay; }
+
+.pd-modal--media .pd-modal__dialog {
+	max-width: 932px;
+}
 
 @keyframes pd-modal__open {
 	0% { opacity: 0; transform: translate3d(0, 50px, 0); }
