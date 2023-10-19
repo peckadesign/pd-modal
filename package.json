@@ -37,6 +37,7 @@
 		"build": "NODE_ENV=production rollup -c --bundleConfigAsCjs",
 		"lint": "NODE_ENV=development eslint src --ext .ts --max-warnings=0"
 	},
+	"sideEffects": false,
 	"devDependencies": {
 		"@rollup/plugin-babel": "^6.0.3",
 		"@rollup/plugin-commonjs": "^24.1.0",
