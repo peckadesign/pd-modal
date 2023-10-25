@@ -43,7 +43,10 @@ export class MediaGalleryContentLoader implements ContentLoader {
 	private readonly prevNextDisabledClass = 'pd-modal__page--disabled'
 	private readonly thumbnailActiveclass = 'pd-modal__thumbnail-link--active'
 
-	public classList: string[] = ['pd-modal--media']
+	// Regardless of the `thumbnails` option, declare that this loader uses `pd-modal--has-thumbnail-list` class. If no
+	// thumbnails are rendered (either there are no related images or the `thumbnails` option is `false`), this class
+	// is removed in the `openContent` method.
+	public classList: string[] = ['pd-modal--media', 'pd-modal--has-thumbnail-list']
 
 	public listeners: ContentLoaderListener<any>[] = []
 
@@ -113,6 +116,10 @@ export class MediaGalleryContentLoader implements ContentLoader {
 		// Must be after `this.relation` has been set up
 		const pagerElement = this.createPager()
 		this.relation.thumbnailsList = this.createThumbnails()
+
+		if (!this.relation.thumbnailsList) {
+			modal.element.classList.remove('pd-modal--has-thumbnail-list')
+		}
 
 		this.relation.spinner = modal.options.spinner
 
