@@ -9,7 +9,7 @@ export type PdModalOptions = {
 	selector: string
 	language: string
 	template?: () => HTMLElement
-	spinner?: Element | string
+	spinner?: Element
 	i18n?: Record<string, I18nEntry>
 }
 

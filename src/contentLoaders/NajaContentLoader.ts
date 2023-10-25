@@ -10,11 +10,8 @@ export class NajaContentLoader implements ContentLoader {
 	}
 
 	public openContent(modal: PdModal): boolean {
-		if (typeof modal.options.spinner === 'string') {
-			modal.content.innerHTML = modal.options.spinner
-		} else if (modal.options.spinner && modal.options.spinner instanceof Element) {
-			modal.content.innerHTML = ''
-			modal.content.appendChild(modal.options.spinner)
+		if (modal.options.spinner) {
+			modal.content.replaceChildren(modal.options.spinner)
 		}
 
 		modal.title.innerHTML = modal.i18n[modal.options.language].loading
