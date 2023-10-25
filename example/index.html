@@ -570,8 +570,13 @@ modal.registerContentLoader(new HTMLContentLoader())</code></pre>
 		createScrollbarWidthStylesheet()
 
 		// Modal itself
+		const spinner = document.createElement('div');
+		spinner.classList.add('pd-modal__spinner', 'absolute', 'inset-0', 'bg-white/80', 'grid', 'place-content-center', 'text-lg', 'font-bold')
+		spinner.innerHTML = 'Načítám&hellip;'
+
 		const modal = new PdModal.create({
-			className: 'prose'
+			className: 'prose',
+			spinner: spinner
 		})
 		modal.registerContentLoader(new PdModal.HTMLContentLoader());
 		modal.registerContentLoader(new PdModal.MediaGalleryContentLoader({

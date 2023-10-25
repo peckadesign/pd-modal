@@ -25,6 +25,7 @@ type Relation = {
 	pagesSummary?: HTMLElement
 	prev?: HTMLAnchorElement
 	next?: HTMLAnchorElement
+	spinner?: Element
 	relatedOpeners: HTMLAnchorElement[]
 	activeIndex: number
 	title: string
@@ -111,8 +112,12 @@ export class MediaGalleryContentLoader implements ContentLoader {
 		const pagerElement = this.createPager()
 		this.relation.thumbnailsList = this.createThumbnails()
 
+		this.relation.spinner = modal.options.spinner
+
 		modal.content.replaceChildren(
-			...([pagerElement, mediaElement, this.relation.thumbnailsList].filter((item) => item !== null) as HTMLElement[])
+			...([pagerElement, mediaElement, this.relation.thumbnailsList, this.relation.spinner].filter(
+				(item) => item !== null
+			) as HTMLElement[])
 		)
 
 		this.setActivePage(this.relation.relatedOpeners.findIndex((opener) => opener.href === openerAnchor.href))
@@ -292,6 +297,7 @@ export class MediaGalleryContentLoader implements ContentLoader {
 		}
 
 		relation.modal.element.dataset.modalLoading = 'true'
+		relation.spinner?.removeAttribute('hidden')
 
 		this.setActivePage(index)
 		this.updateMediaElement(opener)
@@ -392,6 +398,7 @@ export class MediaGalleryContentLoader implements ContentLoader {
 			'load',
 			(event: Event) => {
 				this.relation?.modal.dispatchLoadEvent(opener, event)
+				this.relation?.spinner?.setAttribute('hidden', 'hidden')
 			},
 			{ once: true }
 		)
