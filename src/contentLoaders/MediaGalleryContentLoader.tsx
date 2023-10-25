@@ -26,9 +26,9 @@ type Relation = {
 	pagesSummary?: HTMLElement
 	prev?: HTMLAnchorElement
 	next?: HTMLAnchorElement
-	spinner?: Element
 	relatedOpeners: HTMLAnchorElement[]
 	activeIndex: number
+	spinner?: Element
 	title: string
 }
 
@@ -43,7 +43,10 @@ export class MediaGalleryContentLoader implements ContentLoader {
 	private readonly prevNextDisabledClass = 'pd-modal__page--disabled'
 	private readonly thumbnailActiveclass = 'pd-modal__thumbnail-link--active'
 
-	public classList: string[] = ['pd-modal--media']
+	// Regardless of the `thumbnails` option, declare that this loader uses `pd-modal--has-thumbnail-list` class. If no
+	// thumbnails are rendered (either there are no related images or the `thumbnails` option is `false`), this class
+	// is removed in the `openContent` method.
+	public classList: string[] = ['pd-modal--media', 'pd-modal--has-thumbnail-list']
 
 	public listeners: ContentLoaderListener<any>[] = []
 
@@ -107,6 +110,7 @@ export class MediaGalleryContentLoader implements ContentLoader {
 			thumbnails: [],
 			relatedOpeners: this.getRelatedOpeners(modal.options.selector, openerAnchor),
 			activeIndex: -1,
+			spinner: modal.options.spinner,
 			title: title
 		}
 
@@ -114,7 +118,9 @@ export class MediaGalleryContentLoader implements ContentLoader {
 		const pagerElement = this.createPager()
 		this.relation.thumbnailsList = this.createThumbnails()
 
-		this.relation.spinner = modal.options.spinner
+		if (!this.relation.thumbnailsList) {
+			modal.element.classList.remove('pd-modal--has-thumbnail-list')
+		}
 
 		modal.content.replaceChildren(
 			...([pagerElement, mediaBoxElement, this.relation.thumbnailsList, this.relation.spinner].filter(
@@ -122,9 +128,9 @@ export class MediaGalleryContentLoader implements ContentLoader {
 			) as HTMLElement[])
 		)
 
-		this.setActivePage(this.relation.relatedOpeners.findIndex((opener) => opener.href === openerAnchor.href))
-
 		modal.setModaltitle(title)
+
+		this.setActivePage(this.relation.relatedOpeners.findIndex((opener) => opener.href === openerAnchor.href))
 
 		return false
 	}
