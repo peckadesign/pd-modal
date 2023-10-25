@@ -3,6 +3,7 @@ import React from 'jsx-dom'
 
 export type PdModalMediaOptions = {
 	i18n?: Record<string, I18nMediaGalleryEntry>
+	immediateMediaReplace: boolean
 	infinitePager: boolean
 	sizes?: string
 	thumbnails: boolean
@@ -18,7 +19,7 @@ export type I18nMediaGalleryEntry = {
 type Relation = {
 	modal: PdModal
 	opener: HTMLAnchorElement
-	mediaElement: HTMLElement
+	mediaBoxElement: HTMLElement
 	pages: HTMLAnchorElement[]
 	thumbnailsList?: HTMLElement | null
 	thumbnails: HTMLAnchorElement[]
@@ -54,6 +55,7 @@ export class MediaGalleryContentLoader implements ContentLoader {
 	}
 
 	private readonly defaults: PdModalMediaOptions = {
+		immediateMediaReplace: false,
 		infinitePager: false,
 		thumbnails: false
 	}
@@ -95,12 +97,12 @@ export class MediaGalleryContentLoader implements ContentLoader {
 		const openerAnchor = opener as HTMLAnchorElement
 		const title = this.getTitle(openerAnchor)
 
-		const mediaElement = this.createMediaElement(modal, openerAnchor, title)
+		const mediaBoxElement = this.createMediaBoxElement(modal, openerAnchor, title)
 
 		this.relation = {
 			modal: modal,
 			opener: openerAnchor,
-			mediaElement: mediaElement,
+			mediaBoxElement: mediaBoxElement,
 			pages: [],
 			thumbnails: [],
 			relatedOpeners: this.getRelatedOpeners(modal.options.selector, openerAnchor),
@@ -115,7 +117,7 @@ export class MediaGalleryContentLoader implements ContentLoader {
 		this.relation.spinner = modal.options.spinner
 
 		modal.content.replaceChildren(
-			...([pagerElement, mediaElement, this.relation.thumbnailsList, this.relation.spinner].filter(
+			...([pagerElement, mediaBoxElement, this.relation.thumbnailsList, this.relation.spinner].filter(
 				(item) => item !== null
 			) as HTMLElement[])
 		)
@@ -300,7 +302,7 @@ export class MediaGalleryContentLoader implements ContentLoader {
 		relation.spinner?.removeAttribute('hidden')
 
 		this.setActivePage(index)
-		this.updateMediaElement(opener)
+		this.updateMediaBoxElement(opener)
 		relation.modal.setModaltitle(this.getTitle(opener))
 	}
 
@@ -377,31 +379,57 @@ export class MediaGalleryContentLoader implements ContentLoader {
 		})
 	}
 
-	private updateMediaElement(opener: HTMLAnchorElement): void {
+	private updateMediaBoxElement(opener: HTMLAnchorElement): void {
 		const relation = this.relation as Relation
+		const isIframe = opener.dataset.modalIframe !== undefined
 
-		const newMediaElement = this.createMediaElement(relation.modal, opener)
-		relation.mediaElement.replaceWith(newMediaElement)
-		relation.mediaElement = newMediaElement
+		const mediaBoxElement = this.createMediaBoxElement(relation.modal, opener)
+
+		// If the media is an `iframe`, we need to append it immediately, as its `load` event won't be dispatched unless
+		// it's connected to the DOM. Images can be replaced immediately using the `immediateMediaReplace` option - this
+		// allows you to take advantage of progressive jpeg loading, for example, and show the progress of the image
+		// loading.
+		if (isIframe || this.options.immediateMediaReplace) {
+			relation.mediaBoxElement.replaceWith(mediaBoxElement)
+			relation.mediaBoxElement = mediaBoxElement
+		}
 	}
 
-	private createMediaElement(modal: PdModal, opener: HTMLAnchorElement, title?: string): HTMLElement {
+	private createMediaBoxElement(modal: PdModal, opener: HTMLAnchorElement, title?: string): HTMLElement {
 		const isIframe = opener.dataset.modalIframe !== undefined
 		const description = this.getDescription(opener)
 		const src = opener.href
 
 		title = title !== undefined ? title : this.getTitle(opener)
 
+		// Create media element for preload
 		const mediaElement = document.createElement(isIframe ? 'iframe' : 'img')
 
 		mediaElement.addEventListener(
 			'load',
 			(event: Event) => {
+				// The image element is appended on its `load' event. If an `iframe` is used, the load event only fires
+				// on iframes that are connected to the DOM, so we don't append them here.
+				if (!this.options.immediateMediaReplace && !isIframe && this.relation) {
+					this.relation.mediaBoxElement.replaceWith(mediaBoxElement)
+					this.relation.mediaBoxElement = mediaBoxElement
+				}
+
 				this.relation?.modal.dispatchLoadEvent(opener, event)
 				this.relation?.spinner?.setAttribute('hidden', 'hidden')
 			},
 			{ once: true }
 		)
+
+		// Create the whole figure element
+		const mediaBoxElement = (
+			<figure class="pd-modal__media-box">
+				{mediaElement}
+				{description ? <figcaption class="pd-modal__media-caption">{description}</figcaption> : null}
+			</figure>
+		) as HTMLElement
+
+		// Set the parameters, including the `src`, so the loading starts
 		mediaElement.src = src
 		mediaElement.classList.add('pd-modal__media')
 
@@ -411,12 +439,7 @@ export class MediaGalleryContentLoader implements ContentLoader {
 			this.setImageAttributes(mediaElement as HTMLImageElement, opener, title)
 		}
 
-		return (
-			<figure class="pd-modal__media-box">
-				{mediaElement}
-				{description ? <figcaption class="pd-modal__media-caption">{description}</figcaption> : null}
-			</figure>
-		) as HTMLElement
+		return mediaBoxElement
 	}
 
 	private setIframeAttributes(iframe: HTMLIFrameElement, modal: PdModal): void {
