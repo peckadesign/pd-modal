@@ -26,9 +26,9 @@ type Relation = {
 	pagesSummary?: HTMLElement
 	prev?: HTMLAnchorElement
 	next?: HTMLAnchorElement
-	spinner?: Element
 	relatedOpeners: HTMLAnchorElement[]
 	activeIndex: number
+	spinner?: Element
 	title: string
 }
 
@@ -110,6 +110,7 @@ export class MediaGalleryContentLoader implements ContentLoader {
 			thumbnails: [],
 			relatedOpeners: this.getRelatedOpeners(modal.options.selector, openerAnchor),
 			activeIndex: -1,
+			spinner: modal.options.spinner,
 			title: title
 		}
 
@@ -121,17 +122,15 @@ export class MediaGalleryContentLoader implements ContentLoader {
 			modal.element.classList.remove('pd-modal--has-thumbnail-list')
 		}
 
-		this.relation.spinner = modal.options.spinner
-
 		modal.content.replaceChildren(
 			...([pagerElement, mediaBoxElement, this.relation.thumbnailsList, this.relation.spinner].filter(
 				(item) => item !== null
 			) as HTMLElement[])
 		)
 
-		this.setActivePage(this.relation.relatedOpeners.findIndex((opener) => opener.href === openerAnchor.href))
-
 		modal.setModaltitle(title)
+
+		this.setActivePage(this.relation.relatedOpeners.findIndex((opener) => opener.href === openerAnchor.href))
 
 		return false
 	}
