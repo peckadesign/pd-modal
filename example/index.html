@@ -469,6 +469,12 @@ modal.registerContentLoader(new HTMLContentLoader())</code></pre>
 						<td>Allows you to add custom language or override existing ones. By default, the plugin supports <code>en</code>, <code>de</code>, <code>cs</code> and <code>sk</code>.</td>
 					</tr>
 					<tr>
+						<th scope="row" class="py-2 align-baseline"><code>immediateMediaReplace</code></th>
+						<td><code>boolean</code></td>
+						<td><code>false</code></td>
+						<td>When the page is changed in modal, the currently visible image is not replaced by the new one until the new one has fully loaded. Images can be replaced immediately by setting this option to <code>true</code> - this allows you to take advantage of progressive jpeg loading, for example, and show the progress of the image loading.</td>
+					</tr>
+					<tr>
 						<th scope="row" class="py-2 align-baseline"><code>infinitePager</code></th>
 						<td><code>boolean</code></td>
 						<td><code>false</code></td>
@@ -570,8 +576,13 @@ modal.registerContentLoader(new HTMLContentLoader())</code></pre>
 		createScrollbarWidthStylesheet()
 
 		// Modal itself
+		const spinner = document.createElement('div');
+		spinner.classList.add('pd-modal__spinner', 'absolute', 'inset-0', 'bg-white/80', 'grid', 'place-content-center', 'text-lg', 'font-bold')
+		spinner.innerHTML = 'Načítám&hellip;'
+
 		const modal = new PdModal.create({
-			className: 'prose'
+			className: 'prose',
+			spinner: spinner
 		})
 		modal.registerContentLoader(new PdModal.HTMLContentLoader());
 		modal.registerContentLoader(new PdModal.MediaGalleryContentLoader({
