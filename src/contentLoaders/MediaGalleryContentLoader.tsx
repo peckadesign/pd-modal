@@ -179,7 +179,12 @@ export class MediaGalleryContentLoader implements ContentLoader {
 					data-index={index}
 					aria-label={`${text.showImage} ${this.getPagesSummaryText(index + 1)}`}
 				>
-					<img src={opener.dataset.modalThumbnail} class="pd-modal__thumbnail" alt={thumbnailTitle} />
+					<img
+						src={opener.dataset.modalThumbnail}
+						srcSet={opener.dataset.modalThumbnailSrcset}
+						className="pd-modal__thumbnail"
+						alt={thumbnailTitle}
+					/>
 				</a>
 			) as HTMLAnchorElement
 
