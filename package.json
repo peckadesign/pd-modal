@@ -1,7 +1,7 @@
 {
 	"name": "@peckadesign/pd-modal",
 	"title": "PdModal",
-	"version": "2.3.0",
+	"version": "2.4.0",
 	"description": "TypeScript plugin for modal window.",
 	"main": "dist/PdModal.js",
 	"unpkg": "dist/PdModal.min.js",
