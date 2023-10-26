@@ -5,7 +5,7 @@ export type PdModalMediaOptions = {
 	i18n?: Record<string, I18nMediaGalleryEntry>
 	immediateMediaReplace: boolean
 	infinitePager: boolean
-	sizes?: string
+	sizes?: string | PdModalMediaSizesFunction
 	thumbnails: boolean
 }
 
@@ -15,6 +15,12 @@ export type I18nMediaGalleryEntry = {
 	showImage: string
 	imageOf: string
 }
+
+export type PdModalMediaSizesFunction = (
+	this: MediaGalleryContentLoader,
+	modal: PdModal,
+	opener: HTMLAnchorElement
+) => string
 
 type Relation = {
 	modal: PdModal
@@ -173,12 +179,7 @@ export class MediaGalleryContentLoader implements ContentLoader {
 					data-index={index}
 					aria-label={`${text.showImage} ${this.getPagesSummaryText(index + 1)}`}
 				>
-					<img
-						src={opener.dataset.modalThumbnail}
-						srcSet={opener.dataset.modalThumbnailSrcset}
-						class="pd-modal__thumbnail"
-						alt={thumbnailTitle}
-					/>
+					<img src={opener.dataset.modalThumbnail} class="pd-modal__thumbnail" alt={thumbnailTitle} />
 				</a>
 			) as HTMLAnchorElement
 
@@ -447,7 +448,7 @@ export class MediaGalleryContentLoader implements ContentLoader {
 		if (isIframe) {
 			this.setIframeAttributes(mediaElement as HTMLIFrameElement, modal)
 		} else {
-			this.setImageAttributes(mediaElement as HTMLImageElement, opener, title)
+			this.setImageAttributes(mediaElement as HTMLImageElement, modal, opener, title)
 		}
 
 		return mediaBoxElement
@@ -463,18 +464,25 @@ export class MediaGalleryContentLoader implements ContentLoader {
 		iframe.height = String(width / (16 / 9))
 	}
 
-	private setImageAttributes(image: HTMLImageElement, opener: HTMLAnchorElement, title: string): void {
+	private setImageAttributes(image: HTMLImageElement, modal: PdModal, opener: HTMLAnchorElement, title: string): void {
 		const srcset = opener.dataset.modalSrcset
 		const sizes = opener.dataset.modalSizes || this.options.sizes
 
 		image.alt = title
 		image.classList.add('pd-modal__media--image')
 
-		if (srcset) {
-			image.srcset = srcset
+		if (!srcset) {
+			return
 		}
-		if (srcset && sizes) {
+
+		image.srcset = srcset
+
+		if (typeof sizes === 'string') {
 			image.sizes = sizes
+		}
+
+		if (typeof sizes === 'function') {
+			image.sizes = sizes.call(this, modal, opener)
 		}
 	}
 

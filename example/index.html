@@ -231,7 +231,7 @@ modal.registerContentLoader(new HTMLContentLoader())</code></pre>
 					</tr>
 					<tr>
 						<th scope="row" class="py-2 align-baseline"><code>template</code></th>
-						<td><code>HTMLElemed|undefined</code></td>
+						<td><code>HTMLElemed | undefined</code></td>
 						<td><code>undefined</code></td>
 						<td>
 							Allows you to override the modal template complete. Template should meet accessibility requirements. As this plugin is based on a11y-dialog, this might be <a href="https://a11y-dialog.netlify.app/usage/markup">your starting point</a>. Or you can modify default template from PdModal itself.
@@ -253,7 +253,7 @@ modal.registerContentLoader(new HTMLContentLoader())</code></pre>
 					</tr>
 					<tr>
 						<th scope="row" class="py-2 align-baseline"><code>spinner</code></th>
-						<td><code>Element|undefined</code></td>
+						<td><code>Element | undefined</code></td>
 						<td><code>undefined</code></td>
 						<td>If you use non-static content loaded using 3<sup>rd</sup> party ajax library (e.g. Naja), this will be used as a placeholder content. It is your responsibility to replace the content when it is ready.
 
@@ -272,7 +272,7 @@ modal.registerContentLoader(new HTMLContentLoader())</code></pre>
 		close: string
 		defaultTitle: string
 		loading: string
-	}&gt;|undefined</code></pre></td>
+	}&gt; | undefined</code></pre></td>
 						<td><code>undefined</code></td>
 						<td>Allows you to add custom language or override existing ones. By default, the plugin supports <code>en</code>, <code>de</code>, <code>cs</code> and <code>sk</code>.</td>
 					</tr>
@@ -479,7 +479,7 @@ modal.registerContentLoader(new HTMLContentLoader())</code></pre>
 	next: string
 	showImage: string
 	imageOf: string
-}&gt;|undefined</code></pre></td>
+}&gt; | undefined</code></pre></td>
 						<td><code>undefined</code></td>
 						<td>Allows you to add custom language or override existing ones. By default, the plugin supports <code>en</code>, <code>de</code>, <code>cs</code> and <code>sk</code>.</td>
 					</tr>
@@ -497,9 +497,13 @@ modal.registerContentLoader(new HTMLContentLoader())</code></pre>
 					</tr>
 					<tr>
 						<th scope="row" class="py-2 align-baseline"><code>sizes</code></th>
-						<td><code>string|undefined</code></td>
+						<td><pre class="my-0 p-0"><code class="language-typescript">((
+	this: MediaGalleryContentLoader,
+	modal: PdModal,
+	opener: HTMLAnchorElement
+) => string) | string | undefined</code></pre></td>
 						<td><code>undefined</code></td>
-						<td>When set, this value is used as an <code>sizes</code> attribute on image elements.</td>
+						<td>When set, this value is used as an <code>sizes</code> attribute on image elements. String value is used as-is, when function is passed, its return value is used as attribute value.</td>
 					</tr>
 					<tr>
 						<th scope="row" class="py-2 align-baseline"><code>thumbnails</code></th>
