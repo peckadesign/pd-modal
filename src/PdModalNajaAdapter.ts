@@ -43,6 +43,10 @@ export class PdModalNajaAdapter implements AjaxModal {
 	}
 
 	public dispatchLoad(options: PdModalAjaxOptions, event: Event): void {
+		if (this.pdModal.title.innerHTML !== this.pdModal.i18n[this.pdModal.options.language].loading) {
+			delete this.pdModal.title.dataset.contentLoading
+		}
+
 		this.pdModal.dispatchLoadEvent(this.getOpenerFromOptions(options), event)
 	}
 
