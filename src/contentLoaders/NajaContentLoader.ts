@@ -3,7 +3,11 @@ import { BaseContentLoader } from './BaseContentLoader'
 
 export class NajaContentLoader extends BaseContentLoader implements ContentLoader {
 	public matcher(opener: PdModalOpener): boolean {
-		return opener === null || opener.dataset.najaModal !== undefined
+		return (
+			opener === null ||
+			opener.dataset.najaModal !== undefined ||
+			(opener.classList.contains('ajax') && this.modal.isOpen)
+		)
 	}
 
 	public isAsync(): boolean {
