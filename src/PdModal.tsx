@@ -24,8 +24,8 @@ export interface ContentLoader {
 	listeners?: ContentLoaderListener<keyof HTMLElementEventMap>[]
 	matcher: (opener: PdModalOpener) => boolean
 	isAsync: (opener: PdModalOpener) => boolean
-	openContent: (modal: PdModal, opener: PdModalOpener) => boolean
-	autoBind?: (modal: PdModal) => void
+	openContent: (opener: PdModalOpener) => boolean
+	autoBind?: () => void
 }
 
 export type ContentLoaderListener<T extends keyof HTMLElementEventMap> = {
@@ -139,7 +139,7 @@ export class PdModal extends EventTarget {
 		this.contentLoaders.push(contentLoader)
 
 		if (this.options.autoBind && contentLoader.autoBind) {
-			contentLoader.autoBind(this)
+			contentLoader.autoBind()
 		}
 	}
 
@@ -184,7 +184,7 @@ export class PdModal extends EventTarget {
 		if (!isAsyncContent || !alreadyOpen) {
 			this.setOptionsFromOpener()
 			this.setOptionsFromContentLoader(contentLoader)
-			loaded = contentLoader.openContent(this, opener)
+			loaded = contentLoader.openContent(opener)
 		}
 
 		if (!loaded) {
