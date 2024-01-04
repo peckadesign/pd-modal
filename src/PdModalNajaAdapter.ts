@@ -1,8 +1,13 @@
 import { PdModal } from './PdModal'
 import { AjaxModal } from '@peckadesign/pd-naja/dist/extensions/AjaxModalExtension'
 
+type OptionWidth = string | null
+type OptionClassName = string | null
+
 interface PdModalAjaxOptions {
 	opener: string
+	width: OptionWidth
+	className: OptionClassName
 }
 
 export class PdModalNajaAdapter implements AjaxModal {
@@ -19,6 +24,15 @@ export class PdModalNajaAdapter implements AjaxModal {
 	}
 
 	public show(opener: Element, options: PdModalAjaxOptions, event: Event): void {
+		if (!opener.getAttribute('data-modal-width') && options.width) {
+			opener.setAttribute('data-modal-width', String(options.width))
+		}
+
+		// `options.className` might be an empty string which we have to preserve
+		if (!opener.getAttribute('data-modal-class-name') && options.className !== null) {
+			opener.setAttribute('data-modal-class-name', options.className)
+		}
+
 		this.pdModal.open(opener as HTMLElement | SVGElement, event)
 	}
 
@@ -51,7 +65,11 @@ export class PdModalNajaAdapter implements AjaxModal {
 	}
 
 	public getOptions(element: Element): PdModalAjaxOptions {
-		return { opener: element.outerHTML }
+		return {
+			opener: element.outerHTML,
+			width: this.getWidth(element),
+			className: this.getClassName(element)
+		}
 	}
 
 	public setOptions(): void {
@@ -68,5 +86,19 @@ export class PdModalNajaAdapter implements AjaxModal {
 		return new DOMParser().parseFromString(options.opener, 'text/html').body.firstElementChild as
 			| HTMLElement
 			| SVGElement
+	}
+
+	private getWidth = (element: Element): OptionWidth => {
+		return element.getAttribute('data-modal-width') || history.state?.pdModal?.options?.width || null
+	}
+
+	private getClassName(element: Element): OptionClassName {
+		const dataClassName = element.getAttribute('data-modal-class-name')
+
+		if (dataClassName !== null) {
+			return dataClassName
+		}
+
+		return history.state?.pdModal?.options?.className || null
 	}
 }
