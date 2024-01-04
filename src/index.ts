@@ -1,3 +1,4 @@
+export { BaseContentLoader } from './contentLoaders/BaseContentLoader'
 export { HTMLContentLoader } from './contentLoaders/HTMLContentLoader'
 export { MediaGalleryContentLoader } from './contentLoaders/MediaGalleryContentLoader'
 export { NajaContentLoader } from './contentLoaders/NajaContentLoader'

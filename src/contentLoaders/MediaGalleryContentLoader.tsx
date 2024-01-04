@@ -1,5 +1,6 @@
 import { ContentLoader, ContentLoaderListener, PdModal, PdModalOpener } from '../PdModal'
 import React from 'jsx-dom'
+import { BaseContentLoader } from './BaseContentLoader'
 
 export type PdModalMediaOptions = {
 	i18n?: Record<string, I18nMediaGalleryEntry>
@@ -16,11 +17,7 @@ export type I18nMediaGalleryEntry = {
 	imageOf: string
 }
 
-export type PdModalMediaSizesFunction = (
-	this: MediaGalleryContentLoader,
-	modal: PdModal,
-	opener: HTMLAnchorElement
-) => string
+export type PdModalMediaSizesFunction = (this: MediaGalleryContentLoader, opener: HTMLAnchorElement) => string
 
 type Relation = {
 	modal: PdModal
@@ -38,7 +35,7 @@ type Relation = {
 	title: string
 }
 
-export class MediaGalleryContentLoader implements ContentLoader {
+export class MediaGalleryContentLoader extends BaseContentLoader implements ContentLoader {
 	public imageRegex: RegExp = /(http)?s?:?(\/\/[^"']*\.(?:webp|jpg|jpeg|gif|png|svg))/
 
 	private readonly options: PdModalMediaOptions
@@ -69,7 +66,9 @@ export class MediaGalleryContentLoader implements ContentLoader {
 		thumbnails: false
 	}
 
-	public constructor(options?: Partial<PdModalMediaOptions>) {
+	public constructor(modal: PdModal, options?: Partial<PdModalMediaOptions>) {
+		super(modal)
+
 		this.options = { ...this.defaults, ...options }
 
 		if (options && options.i18n) {
@@ -101,22 +100,22 @@ export class MediaGalleryContentLoader implements ContentLoader {
 		return false
 	}
 
-	public openContent(modal: PdModal, opener: PdModalOpener): boolean {
+	public openContent(opener: PdModalOpener): boolean {
 		// This method is called only when `matcher` returns `true`, therefore `opener` is always HTMLAnchorElement.
 		const openerAnchor = opener as HTMLAnchorElement
 		const title = this.getTitle(openerAnchor)
 
-		const mediaBoxElement = this.createMediaBoxElement(modal, openerAnchor, title)
+		const mediaBoxElement = this.createMediaBoxElement(this.modal, openerAnchor, title)
 
 		this.relation = {
-			modal: modal,
+			modal: this.modal,
 			opener: openerAnchor,
 			mediaBoxElement: mediaBoxElement,
 			pages: [],
 			thumbnails: [],
-			relatedOpeners: this.getRelatedOpeners(modal.options.selector, openerAnchor),
+			relatedOpeners: this.getRelatedOpeners(this.modal.options.selector, openerAnchor),
 			activeIndex: -1,
-			spinner: modal.options.spinner,
+			spinner: this.modal.options.spinner,
 			title: title
 		}
 
@@ -125,16 +124,16 @@ export class MediaGalleryContentLoader implements ContentLoader {
 		this.relation.thumbnailsList = this.createThumbnails()
 
 		if (!this.relation.thumbnailsList) {
-			modal.element.classList.remove('pd-modal--has-thumbnail-list')
+			this.modal.element.classList.remove('pd-modal--has-thumbnail-list')
 		}
 
-		modal.content.replaceChildren(
+		this.modal.content.replaceChildren(
 			...([pagerElement, mediaBoxElement, this.relation.thumbnailsList, this.relation.spinner].filter(
 				(item) => item !== null
 			) as HTMLElement[])
 		)
 
-		modal.setModaltitle(title)
+		this.modal.setModaltitle(title)
 
 		this.setActivePage(this.relation.relatedOpeners.findIndex((opener) => opener.href === openerAnchor.href))
 
@@ -487,7 +486,7 @@ export class MediaGalleryContentLoader implements ContentLoader {
 		}
 
 		if (typeof sizes === 'function') {
-			image.sizes = sizes.call(this, modal, opener)
+			image.sizes = sizes.call(this, opener)
 		}
 	}
 

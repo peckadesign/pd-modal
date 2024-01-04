@@ -1,6 +1,7 @@
-import { ContentLoader, PdModal, PdModalOpener } from '../PdModal'
+import { ContentLoader, PdModalOpener } from '../PdModal'
+import { BaseContentLoader } from './BaseContentLoader'
 
-export class NajaContentLoader implements ContentLoader {
+export class NajaContentLoader extends BaseContentLoader implements ContentLoader {
 	public matcher(opener: PdModalOpener): boolean {
 		return opener === null || opener.dataset.najaModal !== undefined
 	}
@@ -9,13 +10,14 @@ export class NajaContentLoader implements ContentLoader {
 		return true
 	}
 
-	public openContent(modal: PdModal): boolean {
-		if (modal.options.spinner) {
-			modal.content.replaceChildren(modal.options.spinner)
+	public openContent(): boolean {
+		if (this.modal.options.spinner) {
+			this.modal.content.replaceChildren(this.modal.options.spinner)
 		}
 
-		modal.title.innerHTML = modal.i18n[modal.options.language].loading
-		modal.title.hidden = false
+		this.modal.title.innerHTML = this.modal.i18n[this.modal.options.language].loading
+		this.modal.title.dataset.contentLoading = 'true'
+		this.modal.title.hidden = false
 
 		return false
 	}
