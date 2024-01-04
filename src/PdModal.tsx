@@ -149,6 +149,7 @@ export class PdModal extends EventTarget {
 		const contentLoader = this.matchContentLoader(opener)
 		const isAsyncContent = contentLoader.isAsync(opener)
 		const alreadyOpen = this.isOpen
+		const scrollTop = document.scrollingElement?.scrollTop
 		let loaded = false
 
 		if (alreadyOpen) {
@@ -156,6 +157,13 @@ export class PdModal extends EventTarget {
 
 			// Keep the focus inside modal when changing content
 			this.element.focus()
+
+			// Restore scroll position of document. When modal is focused, browser tries to scroll to it, even though it
+			// has fixed position. So after focus is moved to it, we immediately set the `scrollTop` to previously
+			// stored value.
+			if (scrollTop) {
+				document.scrollingElement!.scrollTop = scrollTop
+			}
 		}
 
 		if (!alreadyOpen) {
@@ -192,14 +200,11 @@ export class PdModal extends EventTarget {
 		}
 
 		if (!alreadyOpen) {
-			const scrollTop = document.scrollingElement?.scrollTop
-
 			this.a11yDialog.show(event)
 			document.documentElement.dataset.modalOpen = 'true'
 
-			// Restore scroll position of document. When modal is focused, browser tries to scroll to it, even thoug it
-			// has fixed position. So after focus is moved to it (a11yDialog `show` method), we immediately set the
-			// scrollTop to previously stored value.
+			// Same as above when `this.element.focus()` is called (a11yDialog `show` method focuses the element as
+			// well).
 			if (scrollTop) {
 				document.scrollingElement!.scrollTop = scrollTop
 			}
