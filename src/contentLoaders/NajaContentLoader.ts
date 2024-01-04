@@ -6,7 +6,7 @@ export class NajaContentLoader extends BaseContentLoader implements ContentLoade
 		return (
 			opener === null ||
 			opener.dataset.najaModal !== undefined ||
-			(opener.classList.contains('ajax') && this.modal.isOpen)
+			(opener.classList.contains('ajax') && (this.modal.isOpen || history.state?.pdModal))
 		)
 	}
 
