@@ -465,6 +465,7 @@ export class PdModal extends EventTarget {
 	}
 
 	private handleCloserClick(event: Event): void {
+		event.preventDefault()
 		this.close(event)
 	}
 
