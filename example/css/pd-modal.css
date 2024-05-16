@@ -7,6 +7,13 @@
 }
 
 [data-modal-open] {
+	/*
+	 * Force instant scrolling. This prevents the page from jerking when focus is restored after the modal is closed
+	 * and the page position changes.
+	 */
+	scroll-behavior: auto !important;
+
+	/* Prevent body from scrolling */
 	overflow: hidden !important;
 }
 [data-modal-open][data-modal-scrollbar-offset] {
