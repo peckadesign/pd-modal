@@ -29,9 +29,9 @@
 	},
 	"homepage": "https://github.com/peckadesign/pd-modal#readme",
 	"dependencies": {
-		"@peckadesign/pd-naja": "^1.1.0",
-		"a11y-dialog": "^7.5.2",
-		"jsx-dom": "^8.0.5"
+		"@peckadesign/pd-naja": "^1.1.0 || ^2.0.0",
+		"a11y-dialog": "^8.0.4",
+		"jsx-dom": "^8.1.4"
 	},
 	"scripts": {
 		"build": "NODE_ENV=production rollup -c --bundleConfigAsCjs",

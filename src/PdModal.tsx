@@ -130,7 +130,7 @@ export class PdModal extends EventTarget {
 		this.addEventListener('load', this.addClosersFromContent.bind(this))
 		this.addEventListener('load', () => delete this.element.dataset.modalLoading)
 
-		this.a11yDialog.on('hide', (node, event) => this.dialogOnHide(event))
+		this.a11yDialog.on('hide', this.dialogOnHide.bind(this))
 
 		this.window.addEventListener('click', this.delegateWindowClick.bind(this))
 	}
