@@ -59,8 +59,6 @@ export class PdModal extends EventTarget {
 	private loaderClassList: string[] = []
 	private loaderListeners: ContentLoaderListener<keyof HTMLElementEventMap>[] = []
 
-	private closers: Element[] = []
-
 	private contentLoaders: ContentLoader[] = []
 
 	private _isOpen = false
@@ -127,7 +125,6 @@ export class PdModal extends EventTarget {
 		this.addEventListener('afterOpen', this.checkScrollbars.bind(this))
 
 		this.addEventListener('load', this.checkScrollbars.bind(this))
-		this.addEventListener('load', this.addClosersFromContent.bind(this))
 		this.addEventListener('load', () => {
 			delete this.element.dataset.modalLoading
 			delete this.element.dataset.modalEmpty
@@ -158,8 +155,6 @@ export class PdModal extends EventTarget {
 		let loaded = false
 
 		if (alreadyOpen) {
-			this.removeClosersFromContent()
-
 			// Keep the focus inside modal when changing content
 			this.element.focus()
 
@@ -458,27 +453,6 @@ export class PdModal extends EventTarget {
 
 	private getEventDataAttributeName(eventName: keyof PdModalEventMap): string {
 		return `data-modal-${kebabize(eventName)}`
-	}
-
-	private addClosersFromContent(): void {
-		this.closers = Array.from(this.content.querySelectorAll<Element>(this.a11yDialogCloserSelector))
-
-		this.closers.forEach((closer) => {
-			closer.addEventListener('click', this.handleCloserClick.bind(this))
-		})
-	}
-
-	private removeClosersFromContent(): void {
-		this.closers.forEach((closer) => {
-			closer.removeEventListener('click', this.handleCloserClick.bind(this))
-		})
-
-		this.closers = []
-	}
-
-	private handleCloserClick(event: Event): void {
-		event.preventDefault()
-		this.close(event)
 	}
 
 	private checkScrollbars() {
