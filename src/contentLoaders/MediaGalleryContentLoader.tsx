@@ -150,7 +150,7 @@ export class MediaGalleryContentLoader extends BaseContentLoader implements Cont
 		document
 			.querySelectorAll<HTMLAnchorElement>(`${selector}[data-modal-related="${opener.dataset.modalRelated}"]`)
 			.forEach((opener) => {
-				// Prevent duplicities in related hrefs, only first occurence is stored
+				// Prevent duplicities in related hrefs, only first occurrence is stored
 				if (!relatedOpeners.find((rel) => rel.href === opener.href)) {
 					relatedOpeners.push(opener)
 				}
