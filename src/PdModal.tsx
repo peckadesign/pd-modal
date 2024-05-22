@@ -128,7 +128,10 @@ export class PdModal extends EventTarget {
 
 		this.addEventListener('load', this.checkScrollbars.bind(this))
 		this.addEventListener('load', this.addClosersFromContent.bind(this))
-		this.addEventListener('load', () => delete this.element.dataset.modalLoading)
+		this.addEventListener('load', () => {
+			delete this.element.dataset.modalLoading
+			delete this.element.dataset.modalEmpty
+		})
 
 		this.a11yDialog.on('hide', (node, event) => this.dialogOnHide(event))
 
@@ -197,6 +200,10 @@ export class PdModal extends EventTarget {
 
 		if (!loaded) {
 			this.element.dataset.modalLoading = 'true'
+		}
+
+		if (!loaded && isAsyncContent && !alreadyOpen) {
+			this.element.dataset.modalEmpty = 'true'
 		}
 
 		if (!alreadyOpen) {
