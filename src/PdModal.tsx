@@ -138,12 +138,14 @@ export class PdModal extends EventTarget {
 		this.window.addEventListener('click', this.delegateWindowClick.bind(this))
 	}
 
-	public registerContentLoader(contentLoader: ContentLoader): void {
+	public registerContentLoader(contentLoader: ContentLoader): ContentLoader {
 		this.contentLoaders.push(contentLoader)
 
 		if (this.options.autoBind && contentLoader.autoBind) {
 			contentLoader.autoBind()
 		}
+
+		return contentLoader
 	}
 
 	public open(opener: PdModalOpener, event?: Event): void {
