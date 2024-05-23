@@ -310,8 +310,8 @@ modal.registerContentLoader(new HTMLContentLoader(modal))</code></pre>
 				</thead>
 				<tbody>
 					<tr>
-						<th scope="row" class="py-2 align-baseline"><pre class="p-0"><code class="language-typescript">registerContentLoader(contentLoader: ContentLoader): void</code></pre></th>
-						<td>This method registers new content loader for a modal window. Recieves instance of class which must implement <code>ContentLoader</code> interface.</td>
+						<th scope="row" class="py-2 align-baseline"><pre class="p-0"><code class="language-typescript">registerContentLoader(contentLoader: ContentLoader): ContentLoader</code></pre></th>
+						<td>This method registers new content loader for a modal window. Recieves instance of class which must implement <code>ContentLoader</code> interface. Returns the received class to allow chaining or saving the created loader.</td>
 					</tr>
 					<tr>
 						<th scope="row" class="py-2 align-baseline"><pre class="p-0"><code class="language-typescript">open(opener: HTMLElement | SVGElement | null, event?: Event): void</code></pre></th>
