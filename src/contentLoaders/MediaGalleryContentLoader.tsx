@@ -174,7 +174,10 @@ export class MediaGalleryContentLoader extends BaseContentLoader implements Cont
 			const thumbnail = (
 				<a
 					href={opener.href}
-					class="pd-modal__thumbnail-link"
+					class={[
+						'pd-modal__thumbnail-link',
+						opener.dataset.modalIframe !== undefined ? 'pd-modal__thumbnail-link--iframe' : false
+					]}
 					data-index={index}
 					aria-label={`${text.showImage} ${this.getPagesSummaryText(index + 1)}`}
 				>
