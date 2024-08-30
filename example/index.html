@@ -464,6 +464,8 @@ modal.registerContentLoader(new HTMLContentLoader(modal))</code></pre>
 		</ul>
 		<p>Using <code>data-modal-related</code> you can link multiple media together. When this happens, the pager is shown. When you want to load e.g. YouTube video, you have to use <code>data-modal-iframe</code> &ndash; this attribute is necessary whenever <code>iframe</code> should be used. Otherwise, the <code>img</code> element will be used. Using <code>data-modal-media</code> is optional when other matcher condition is evaluated as truthy.</p>
 
+		<p>The class names of certain elements can be added using data attributes on the opening element. The <code>data-modal-thumbnail-link-class-name</code> would add a class name to the thumbnail link, while the <code>data-modal-iframe-class-name</code> would add a class name to the iframe element (when <code>data-modal-iframe="true"</code> is used).</p>
+
 		<h4>Options</h4>
 		<div class="!max-w-full overflow-x-auto">
 			<table class="min-w-[900px]">
