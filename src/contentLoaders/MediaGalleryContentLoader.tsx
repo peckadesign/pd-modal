@@ -176,7 +176,8 @@ export class MediaGalleryContentLoader extends BaseContentLoader implements Cont
 					href={opener.href}
 					class={[
 						'pd-modal__thumbnail-link',
-						opener.dataset.modalIframe !== undefined ? 'pd-modal__thumbnail-link--iframe' : false
+						opener.dataset.modalIframe !== undefined ? 'pd-modal__thumbnail-link--iframe' : false,
+						opener.dataset.modalThumbnailLinkClassName
 					]}
 					data-index={index}
 					aria-label={`${text.showImage} ${this.getPagesSummaryText(index + 1)}`}
@@ -453,7 +454,7 @@ export class MediaGalleryContentLoader extends BaseContentLoader implements Cont
 		mediaElement.classList.add('pd-modal__media')
 
 		if (isIframe) {
-			this.setIframeAttributes(mediaElement as HTMLIFrameElement, modal)
+			this.setIframeAttributes(mediaElement as HTMLIFrameElement, modal, opener)
 		} else {
 			this.setImageAttributes(mediaElement as HTMLImageElement, modal, opener, title)
 		}
@@ -461,10 +462,14 @@ export class MediaGalleryContentLoader extends BaseContentLoader implements Cont
 		return mediaBoxElement
 	}
 
-	private setIframeAttributes(iframe: HTMLIFrameElement, modal: PdModal): void {
+	private setIframeAttributes(iframe: HTMLIFrameElement, modal: PdModal, opener: HTMLAnchorElement): void {
 		const width = parseFloat(getComputedStyle(modal.content).width)
 
 		iframe.classList.add('pd-modal__media--iframe')
+
+		if (opener.dataset.modalIframeClassName) {
+			iframe.classList.add(opener.dataset.modalIframeClassName)
+		}
 
 		iframe.allowFullscreen = true
 		iframe.width = String(width)
