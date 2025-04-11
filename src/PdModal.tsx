@@ -20,8 +20,8 @@ export type I18nEntry = {
 }
 
 export interface ContentLoader {
-	classList?: string[]
-	listeners?: ContentLoaderListener<keyof HTMLElementEventMap>[]
+	classList: string[]
+	listeners: ContentLoaderListener<keyof HTMLElementEventMap>[]
 	matcher: (opener: PdModalOpener) => boolean
 	isAsync: (opener: PdModalOpener) => boolean
 	openContent: (opener: PdModalOpener) => boolean
@@ -420,7 +420,7 @@ export class PdModal extends EventTarget {
 	private setClassListFromContentLoader(contentLoader: ContentLoader): void {
 		this.removeClassListFromPreviousContentLoader()
 
-		if (contentLoader.classList) {
+		if (contentLoader.classList.length) {
 			this.loaderClassList = contentLoader.classList
 			this.element.classList.add(...contentLoader.classList)
 		}
@@ -429,7 +429,7 @@ export class PdModal extends EventTarget {
 	private setListenersFromContentLoader(contentLoader: ContentLoader): void {
 		this.removeListenersFromPreviousContentLoader()
 
-		contentLoader.listeners?.forEach((contentLoaderListener) => {
+		contentLoader.listeners.forEach((contentLoaderListener) => {
 			this.element.addEventListener(contentLoaderListener.eventName, contentLoaderListener.listener)
 			this.loaderListeners.push(contentLoaderListener)
 		})
