@@ -23,7 +23,7 @@ export class HTMLContentLoader extends BaseContentLoader implements ContentLoade
 		}
 
 		const title = this.getModalTitle(this.modal, nonNullOpener)
-		this.modal.setModaltitle(title)
+		this.modal.setModalTitle(title)
 
 		return true
 	}

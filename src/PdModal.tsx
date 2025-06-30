@@ -275,12 +275,12 @@ export class PdModal extends EventTarget {
 		return matchedContentLoader
 	}
 
-	public setModaltitle(title?: string): void {
+	public setModalTitle(title?: string): void {
 		if (title) {
 			this.title.innerHTML = title
 			this.title.hidden = false
 		} else {
-			// Default heading, only for screen reader purposes, therefore hidden with `hidden` attribute
+			// Default heading, only for screen reader purposes, therefore hidden with the ` hidden ` attribute
 			this.title.innerHTML = this.i18n[this.options.language].defaultTitle
 			this.title.hidden = true
 			console.warn("PdModal: Missing modal title, assistive technologies won't be happy 😢")
