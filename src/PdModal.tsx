@@ -133,7 +133,7 @@ export class PdModal extends EventTarget {
 			delete this.element.dataset.modalEmpty
 		})
 
-		this.a11yDialog.on('hide', (node, event) => this.dialogOnHide(event))
+		this.a11yDialog.on('hide', this.dialogOnHide.bind(this))
 
 		this.window.addEventListener('click', this.delegateWindowClick.bind(this))
 	}
