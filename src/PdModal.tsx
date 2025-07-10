@@ -163,9 +163,9 @@ export class PdModal extends EventTarget {
 			// Keep the focus inside modal when changing content
 			this.element.focus()
 
-			// Restore scroll position of document. When modal is focused, browser tries to scroll to it, even though it
-			// has fixed position. So after focus is moved to it, we immediately set the `scrollTop` to previously
-			// stored value.
+			// Restore the scroll position of a document. When modal is focused, the browser tries to scroll to it, even
+			// though it has a fixed position. So after focus is moved to it, we immediately set the `scrollTop` to
+			// previously stored value.
 			if (scrollTop) {
 				document.scrollingElement!.scrollTop = scrollTop
 			}
@@ -186,10 +186,11 @@ export class PdModal extends EventTarget {
 		// hasn't been opened yet. If the content is async loaded and modal has already been opened, the options should
 		// be set manually after the content has been loaded.
 		//
-		// Same applies to loading the content. If it is static content, we want to open it. Otherwise, we keep the
-		// current content and let ajax library to replace it. We don't want to change the content to default spinner.
+		// The same applies to loading the content. If it is static content, we want to open it. Otherwise, we keep the
+		// current content and let ajax library to replace it. We don't want to change the content to the default
+		// spinner.
 		//
-		// If the content is static and modal is already opened, we remove old listeners first.
+		// If the content is static and the modal is already opened, we remove old listeners first.
 		if (!isAsyncContent && alreadyOpen) {
 			this.removeListenersFromOpener()
 		}
@@ -231,7 +232,7 @@ export class PdModal extends EventTarget {
 		this.a11yDialog.hide(event)
 	}
 
-	// Callback method after dialog has closed. This is where we can do our own stuff and cleanup.
+	// Callback method after the dialog has closed. This is where we can do our own stuff and clean-up.
 	private dialogOnHide(event?: Event): void {
 		if (!this._isOpen) {
 			return
@@ -342,15 +343,15 @@ export class PdModal extends EventTarget {
 	private setClassListFromOpener(): void {
 		const classList = this.opener?.getAttribute('data-modal-class-name')
 
-		// Undefined or null when no opener → we don't make any changes to class list.
+		// Undefined or null when no opener → we don't make any changes to a class list.
 		if (classList === undefined || classList === null) {
 			return
 		}
 
 		const classListArray = classList !== '' ? classList.split(' ') : []
 
-		// If the data attribute has been passed & there are old classes, we want to replace classes on window,
-		// therefore remove the old classes first.
+		// If the data attribute has been passed and there are old classes, we want to replace classes on a window
+		// element, therefore, remove the old classes first.
 		if (this.openerClassList.length) {
 			this.element.classList.remove(...this.openerClassList)
 		}

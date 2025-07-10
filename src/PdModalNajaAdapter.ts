@@ -73,12 +73,12 @@ export class PdModalNajaAdapter implements AjaxModal {
 	}
 
 	public setOptions(): void {
-		// Remove options from previous opener. Current options are stored in PdModal class. Note that we are currently
-		// removing only listeners from previous opener. The `width` and `className` are supposed to stay unless
-		// overridden by new opener or until the modal is closed.
+		// Remove options from the previous opener. Current options are stored in PdModal class. Note that we are currently
+		// removing only listeners from the previous opener. The `width` and `className` are supposed to stay unless
+		// overridden by a new opener or until the modal is closed.
 		this.pdModal.removeListenersFromOpener()
 
-		// Set new options from update opener. Opener has been update in `show` method.
+		// Set new options from update opener. Opener has been updated in the ` show ` method.
 		this.pdModal.setOptionsFromOpener()
 	}
 
