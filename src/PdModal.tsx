@@ -167,6 +167,7 @@ export class PdModal extends EventTarget {
 			// though it has a fixed position. So after focus is moved to it, we immediately set the `scrollTop` to
 			// previously stored value.
 			if (scrollTop) {
+				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 				document.scrollingElement!.scrollTop = scrollTop
 			}
 		}
@@ -216,6 +217,7 @@ export class PdModal extends EventTarget {
 			// Same as above when `this.element.focus()` is called (a11yDialog `show` method focuses the element as
 			// well).
 			if (scrollTop) {
+				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 				document.scrollingElement!.scrollTop = scrollTop
 			}
 
