@@ -1,5 +1,5 @@
-import { PdModal } from './PdModal'
 import { AjaxModal } from '@peckadesign/pd-naja/dist/extensions/AjaxModalExtension'
+import { PdModal } from './PdModal'
 
 type OptionWidth = string | null
 type OptionClassName = string | null
