@@ -51,8 +51,6 @@ export class MediaGalleryContentLoader extends BaseContentLoader implements Cont
 	// is removed in the `openContent` method.
 	public classList: string[] = ['pd-modal--media', 'pd-modal--has-thumbnail-list']
 
-	public listeners: ContentLoaderListener<any>[] = []
-
 	public readonly i18n: Record<string, I18nMediaGalleryEntry> = {
 		en: { prev: 'Previous image', next: 'Next image', showImage: 'Show image', imageOf: 'of' },
 		de: { prev: 'Vorheriges Bild', next: 'Nächstes Bild', showImage: 'Bild anzeigen', imageOf: 'von' },
