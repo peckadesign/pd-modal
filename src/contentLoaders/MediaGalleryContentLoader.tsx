@@ -1,5 +1,5 @@
 import { ContentLoader, ContentLoaderListener, PdModal, PdModalOpener } from '../PdModal'
-import React from 'jsx-dom'
+import * as React from 'jsx-dom'
 import { BaseContentLoader } from './BaseContentLoader'
 
 export type PdModalMediaOptions = {
