@@ -23,7 +23,7 @@ export class HTMLContentLoader extends BaseContentLoader implements ContentLoade
 		}
 
 		const title = this.getModalTitle(this.modal, nonNullOpener)
-		this.modal.setModaltitle(title)
+		this.modal.setModalTitle(title)
 
 		return true
 	}
@@ -40,10 +40,15 @@ export class HTMLContentLoader extends BaseContentLoader implements ContentLoade
 				opener = element.closest<HTMLElement | SVGElement>(this.modal.options.selector)
 			}
 
-			if (opener && (this.getHash(opener) || !targetNew)) {
-				event.preventDefault()
-				this.modal.open(opener, event)
+			if (!opener || (!this.getHash(opener) && targetNew)) {
+				return
 			}
+
+			if (element instanceof HTMLAnchorElement) {
+				event.preventDefault()
+			}
+
+			this.modal.open(opener, event)
 		})
 	}
 

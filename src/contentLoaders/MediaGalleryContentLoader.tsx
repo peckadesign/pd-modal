@@ -133,7 +133,7 @@ export class MediaGalleryContentLoader extends BaseContentLoader implements Cont
 			) as HTMLElement[])
 		)
 
-		this.modal.setModaltitle(title)
+		this.modal.setModalTitle(title)
 
 		this.setActivePage(this.relation.relatedOpeners.findIndex((opener) => opener.href === openerAnchor.href))
 
@@ -323,7 +323,7 @@ export class MediaGalleryContentLoader extends BaseContentLoader implements Cont
 
 		this.setActivePage(index)
 		this.updateMediaBoxElement(opener)
-		relation.modal.setModaltitle(this.getTitle(opener))
+		relation.modal.setModalTitle(this.getTitle(opener))
 	}
 
 	private handlePrevClick(event: Event): void {
