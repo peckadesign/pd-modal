@@ -44,7 +44,7 @@ export class HTMLContentLoader extends BaseContentLoader implements ContentLoade
 				return
 			}
 
-			if (element instanceof HTMLAnchorElement) {
+			if (opener instanceof HTMLAnchorElement) {
 				event.preventDefault()
 			}
 
