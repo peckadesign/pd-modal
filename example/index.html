@@ -113,9 +113,9 @@ modal.registerContentLoader(new HTMLContentLoader(modal))</code></pre>
 		<p>Uses loader <a href="#MediaGalleryContentLoader"><code>MediaGalleryContentLoader</code></a>.</p>
 		<ul>
 			<li>
-				<a href="https://unsplash.it/1920/1080/?image=1037"
-				   data-modal-thumbnail="https://unsplash.it/100/56/?image=1037"
-				   data-modal-thumbnail-srcset="https://unsplash.it/100/56/?image=1037, https://unsplash.it/200/112/?image=1037 2x"
+				<a href="https://picsum.photos/id/1037/1920/1080/"
+				   data-modal-thumbnail="https://picsum.photos/id/1037/100/56/"
+				   data-modal-thumbnail-srcset="https://picsum.photos/id/1037/100/56/, https://picsum.photos/id/1037/200/112/ 2x"
 				   data-modal-media
 				   class="js-modal"
 				   title="Image 2"
@@ -124,15 +124,15 @@ modal.registerContentLoader(new HTMLContentLoader(modal))</code></pre>
 				</a>
 			</li>
 			<li>
-				<a href="https://unsplash.it/1920/1080/?image=1057"
-				   data-modal-thumbnail="https://unsplash.it/160/90/?image=1057"
-				   data-modal-thumbnail-srcset="https://unsplash.it/100/56/?image=1057, https://unsplash.it/200/112/?image=1057 2x"
-				   data-modal-srcset="https://unsplash.it/300/169/?image=1057 300w,
-				                      https://unsplash.it/600/338/?image=1057 600w,
-				                      https://unsplash.it/900/506/?image=1057 900w,
-				                      https://unsplash.it/1200/675/?image=1057 1200w,
-				                      https://unsplash.it/1340/754/?image=1057 1340w,
-				                      https://unsplash.it/1800/1013/?image=1057 1800w"
+				<a href="https://picsum.photos/id/1057/1920/1080/"
+				   data-modal-thumbnail="https://picsum.photos/id/1057/160/90/"
+				   data-modal-thumbnail-srcset="https://picsum.photos/id/1057/100/56/, https://picsum.photos/id/1057/200/112/ 2x"
+				   data-modal-srcset="https://picsum.photos/id/1057/300/169/ 300w,
+				                      https://picsum.photos/id/1057/600/338/ 600w,
+				                      https://picsum.photos/id/1057/900/506/ 900w,
+				                      https://picsum.photos/id/1057/1200/675/ 1200w,
+				                      https://picsum.photos/id/1057/1340/754/ 1340w,
+				                      https://picsum.photos/id/1057/1800/1013/ 1800w"
 				   data-modal-related="media"
 				   class="js-modal"
 				   title="Image 1"
@@ -141,9 +141,9 @@ modal.registerContentLoader(new HTMLContentLoader(modal))</code></pre>
 				</a>
 			</li>
 			<li>
-				<a href="https://unsplash.it/1920/1080/?image=1037"
-				   data-modal-thumbnail="https://unsplash.it/100/56/?image=1037"
-				   data-modal-thumbnail-srcset="https://unsplash.it/100/56/?image=1037, https://unsplash.it/200/112/?image=1037 2x"
+				<a href="https://picsum.photos/id/1037/1920/1080/"
+				   data-modal-thumbnail="https://picsum.photos/id/1037/100/56/"
+				   data-modal-thumbnail-srcset="https://picsum.photos/id/1037/100/56/, https://picsum.photos/id/1037/200/112/ 2x"
 				   data-modal-related="media"
 				   class="js-modal"
 				   title="Image 2"
@@ -152,9 +152,9 @@ modal.registerContentLoader(new HTMLContentLoader(modal))</code></pre>
 				</a>
 			</li>
 			<li>
-				<a href="https://unsplash.it/1920/1080/?image=1016"
-				   data-modal-thumbnail="https://unsplash.it/100/56/?image=1016"
-				   data-modal-thumbnail-srcset="https://unsplash.it/100/56/?image=1016, https://unsplash.it/200/112/?image=1016 2x"
+				<a href="https://picsum.photos/id/1016/1920/1080/"
+				   data-modal-thumbnail="https://picsum.photos/id/1016/100/56/"
+				   data-modal-thumbnail-srcset="https://picsum.photos/id/1016/100/56/, https://picsum.photos/id/1016/200/112/ 2x"
 				   data-modal-related="media"
 				   class="js-modal"
 				   title="Image 3"
@@ -163,9 +163,9 @@ modal.registerContentLoader(new HTMLContentLoader(modal))</code></pre>
 				</a>
 			</li>
 			<li>
-				<a href="https://unsplash.it/160/90/?image=1043"
-				   data-modal-thumbnail="https://unsplash.it/100/56/?image=1043"
-				   data-modal-thumbnail-srcset="https://unsplash.it/100/56/?image=1043, https://unsplash.it/200/112/?image=1043 2x"
+				<a href="https://picsum.photos/id/1043/160/90/"
+				   data-modal-thumbnail="https://picsum.photos/id/1043/100/56/"
+				   data-modal-thumbnail-srcset="https://picsum.photos/id/1043/100/56/, https://picsum.photos/id/1043/200/112/ 2x"
 				   data-modal-related="media"
 				   class="js-modal"
 				   title="Image 4"
@@ -480,6 +480,28 @@ modal.registerContentLoader(new HTMLContentLoader(modal))</code></pre>
 
 				<tbody>
 					<tr>
+						<th scope="row" class="py-2 align-baseline"><code>classes</code></th>
+						<td><pre class="my-0 p-0"><code class="language-typescript">{
+	thumbnailLink?: string | string[]
+	thumbnailLinkActive?: string | string[]
+	page?: string | string[] // common to all pages (numbers, prev and next)
+	pageNumber?: string | string[]
+	pagePrev?: string | string[]
+	pageNext?: string | string[]
+	pageActive?: string | string[]
+	pageDisabled?: string | string[]
+} | undefined</code></pre></td>
+						<td><code>undefined</code></td>
+						<td>Allows adding custom classes to pager and thumbnails links.
+							<ul class="my-0">
+								<li><code>page</code> and <code>pageActive</code> apply to all pages in the pager.</li>
+								<li><code>pageNumber</code> modifies the class for numbered links.</li>
+								<li><code>pagePrev</code>, <code>pageNext</code>, and <code>pageDisabled</code> apply only to the previous/next links.</li>
+								<li><code>thumbnailLink</code> and <code>thumbnailLinkActive</code> apply to image thumbnail links.</li>
+							</ul>
+						</td>
+					</tr>
+					<tr>
 						<th scope="row" class="py-2 align-baseline"><code>i18n</code></th>
 						<td><pre class="my-0 p-0"><code class="language-typescript">Record&lt;string, {
 	prev: string
@@ -555,7 +577,7 @@ modal.registerContentLoader(new HTMLContentLoader(modal))</code></pre>
 		<p>On the other hand, e.g. <code>MediaGalleryContentLoader</code> returns <code>true</code> in this method, even though the content isn't preloaded and thus is yet to be loaded. That is because all other content (paging, thumbnails, etc.) is inserted immediately (or at least its DOM structure is).</p>
 
 		<h4 class="text-lg"><code>openContent: (opener: PdModalOpener) => boolean</code></h4>
-		<p>This method is called when the content loader has been matched. You should prepare your content in this method and append it to the <code>PdModal.content</code> (PdModal instance is accessible via <code>this.modal</code> property) element. You can also modify the modal title using <code>PdModal.setModaltitle(title: string)</code> method.</p>
+		<p>This method is called when the content loader has been matched. You should prepare your content in this method and append it to the <code>PdModal.content</code> (PdModal instance is accessible via <code>this.modal</code> property) element. You can also modify the modal title using <code>PdModal.setModalTitle(title: string)</code> method.</p>
 		<p>The return value of this method affects when the load event is dispatched. If <code>true</code> is returned, then the <code>PdModal</code> dispatches the <code>load</code> event after this method finishes. If <code>false</code> is returned, you must dispatch the <code>load</code> yourself programatically using the <code>PdModal.dispatchLoadEvent(opener: PdModalOpener, event: Event)</code> method. For more information, see the <code>MediaGalleryContentLoader</code>, where this event is dispatched after the image (iframe) is fully loaded.</p>
 
 		<h4 class="text-lg">
@@ -613,6 +635,16 @@ modal.registerContentLoader(new HTMLContentLoader(modal))</code></pre>
 		})
 		modal.registerContentLoader(new PdModal.HTMLContentLoader(modal));
 		modal.registerContentLoader(new PdModal.MediaGalleryContentLoader(modal, {
+			classes: {
+				thumbnailLink: 'thumbnail',
+				thumbnailLinkActive: 'thumbnail-active',
+				page: 'foo',
+				pageNumber: 'foo-number',
+				pagePrev: ['bar', 'baz'],
+				pageNext: 'foobar',
+				pageActive: 'active',
+				pageDisabled: 'disabled',
+			},
 			thumbnails: true,
 			sizes:
 				'(min-width: 964px) 900px,' +

@@ -1,13 +1,26 @@
+import { isNonEmptyToken, toArray, toggleClasses } from '../utils'
 import { ContentLoader, ContentLoaderListener, PdModal, PdModalOpener } from '../PdModal'
 import * as React from 'jsx-dom'
 import { BaseContentLoader } from './BaseContentLoader'
 
 export type PdModalMediaOptions = {
+	classes?: PdModalClasses
 	i18n?: Record<string, I18nMediaGalleryEntry>
 	immediateMediaReplace: boolean
 	infinitePager: boolean
 	sizes?: string | PdModalMediaSizesFunction
 	thumbnails: boolean
+}
+
+export type PdModalClasses = {
+	thumbnailLink?: string | string[]
+	thumbnailLinkActive?: string | string[]
+	page?: string | string[] // common to all pages (numbers, prev and next)
+	pageNumber?: string | string[]
+	pagePrev?: string | string[]
+	pageNext?: string | string[]
+	pageActive?: string | string[]
+	pageDisabled?: string | string[]
 }
 
 export type I18nMediaGalleryEntry = {
@@ -46,9 +59,9 @@ export class MediaGalleryContentLoader extends BaseContentLoader implements Cont
 	private readonly prevNextDisabledClass = 'pd-modal__page--disabled'
 	private readonly thumbnailActiveclass = 'pd-modal__thumbnail-link--active'
 
-	// Regardless of the `thumbnails` option, declare that this loader uses `pd-modal--has-thumbnail-list` class. If no
-	// thumbnails are rendered (either there are no related images or the `thumbnails` option is `false`), this class
-	// is removed in the `openContent` method.
+	// Regardless of the `thumbnails` option, declare that this loader uses the ` pd-modal --has-thumbnail-list` class.
+	// If no thumbnails are rendered (either there are no related images or the `thumbnails` option is `false`), this
+	// class is removed in the `openContent` method.
 	public classList: string[] = ['pd-modal--media', 'pd-modal--has-thumbnail-list']
 
 	public readonly i18n: Record<string, I18nMediaGalleryEntry> = {
@@ -148,7 +161,7 @@ export class MediaGalleryContentLoader extends BaseContentLoader implements Cont
 		document
 			.querySelectorAll<HTMLAnchorElement>(`${selector}[data-modal-related="${opener.dataset.modalRelated}"]`)
 			.forEach((opener) => {
-				// Prevent duplicities in related hrefs, only first occurrence is stored
+				// Prevent duplicities in related hrefs, only the first occurrence is stored
 				if (!relatedOpeners.find((rel) => rel.href === opener.href)) {
 					relatedOpeners.push(opener)
 				}
@@ -175,7 +188,8 @@ export class MediaGalleryContentLoader extends BaseContentLoader implements Cont
 					class={[
 						'pd-modal__thumbnail-link',
 						opener.dataset.modalIframe !== undefined ? 'pd-modal__thumbnail-link--iframe' : false,
-						opener.dataset.modalThumbnailLinkClassName
+						opener.dataset.modalThumbnailLinkClassName,
+						this.options.classes?.thumbnailLink
 					]}
 					data-index={index}
 					aria-label={`${text.showImage} ${this.getPagesSummaryText(index + 1)}`}
@@ -225,7 +239,11 @@ export class MediaGalleryContentLoader extends BaseContentLoader implements Cont
 				<a
 					href={opener.href}
 					data-index={index}
-					class="pd-modal__page"
+					class={[
+						'pd-modal__page pd-modal__page--number',
+						this.options.classes?.page,
+						this.options.classes?.pageNumber
+					]}
 					aria-label={`${text.showImage} ${this.getPagesSummaryText(index + 1)}`}
 				>
 					{index + 1}
@@ -278,13 +296,19 @@ export class MediaGalleryContentLoader extends BaseContentLoader implements Cont
 		const language = this.getLanguage()
 
 		const prev = (
-			<a href="#" class="pd-modal__page pd-modal__page--prev">
+			<a
+				href="#"
+				class={['pd-modal__page pd-modal__page--prev', this.options.classes?.page, this.options.classes?.pagePrev]}
+			>
 				{this.i18n[language].prev}
 			</a>
 		) as HTMLAnchorElement
 
 		const next = (
-			<a href="#" class="pd-modal__page pd-modal__page--next">
+			<a
+				href="#"
+				class={['pd-modal__page pd-modal__page--next', this.options.classes?.page, this.options.classes?.pageNext]}
+			>
 				{this.i18n[language].next}
 			</a>
 		) as HTMLAnchorElement
@@ -357,21 +381,30 @@ export class MediaGalleryContentLoader extends BaseContentLoader implements Cont
 	private setActivePage(index: number): void {
 		const relation = this.relation as Relation
 
-		// Set active page
-		relation.pages[relation.activeIndex]?.classList.remove(this.pageActiveClass)
-		relation.pages[index]?.classList.add(this.pageActiveClass)
+		// Set an active page
+		const pageClasses = [this.pageActiveClass, ...toArray(this.options.classes?.pageActive)].filter(isNonEmptyToken)
+		relation.pages[relation.activeIndex]?.classList.remove(...pageClasses)
+		relation.pages[index]?.classList.add(...pageClasses)
 
-		// Active thumbnail & scroll to it
-		relation.thumbnails[relation.activeIndex]?.classList.remove(this.thumbnailActiveclass)
-		relation.thumbnails[index]?.classList.add(this.thumbnailActiveclass)
+		// Active thumbnail and scroll to it
+		const thumbnailClasses = [this.thumbnailActiveclass, ...toArray(this.options.classes?.thumbnailLinkActive)].filter(
+			isNonEmptyToken
+		)
+		relation.thumbnails[relation.activeIndex]?.classList.remove(...thumbnailClasses)
+		relation.thumbnails[index]?.classList.add(...thumbnailClasses)
 		this.scrollThumbnailIntoView(index)
 
 		// Set disabled classes on prev/next
-		relation.prev?.classList.toggle(this.prevNextDisabledClass, index === 0 && !this.options.infinitePager)
-		relation.next?.classList.toggle(
-			this.prevNextDisabledClass,
-			index === relation.pages.length - 1 && !this.options.infinitePager
-		)
+		const prevDisabled = index === 0 && !this.options.infinitePager
+		const nextDisabled = index === relation.pages.length - 1 && !this.options.infinitePager
+
+		relation.prev?.classList.toggle(this.prevNextDisabledClass, prevDisabled)
+		relation.next?.classList.toggle(this.prevNextDisabledClass, nextDisabled)
+
+		if (this.options.classes?.pageDisabled) {
+			toggleClasses(relation.prev, this.options.classes.pageDisabled, prevDisabled)
+			toggleClasses(relation.next, this.options.classes.pageDisabled, nextDisabled)
+		}
 
 		// Update current page text
 		this.updatePagesSummary(index + 1)
