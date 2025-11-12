@@ -12,6 +12,24 @@ export function kebabize(str: string): string {
 	return str.replace(/[A-Z]+(?![a-z])|[A-Z]/g, ($, ofs) => (ofs ? '-' : '') + $.toLowerCase())
 }
 
+export function toArray<T>(value?: T | T[]): T[] {
+	return value === undefined ? [] : Array.isArray(value) ? value : [value]
+}
+
+export function isNonEmptyToken(token: unknown): token is string {
+	return typeof token === 'string' && token.length > 0 && /^\S+$/.test(token)
+}
+
+export function toggleClasses(element: HTMLElement | undefined, classes: string | string[], force?: boolean): void {
+	if (!element) {
+		return
+	}
+
+	const tokens = toArray(classes).filter(isNonEmptyToken)
+
+	tokens.forEach((token) => element.classList.toggle(token, force))
+}
+
 export function getFunction(name: string, scope: any): any {
 	const pieces = name.split('.')
 	let current = scope
