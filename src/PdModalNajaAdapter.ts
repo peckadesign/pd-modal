@@ -21,6 +21,8 @@ export class PdModalNajaAdapter implements AjaxModal {
 
 		this.element = pdModal.element
 		this.reservedSnippetIds = reservedSnippetIds
+
+		this.pdModal.addEventListener('afterClose', this.resetContent.bind(this))
 	}
 
 	public show(opener: Element, options: PdModalAjaxOptions, event: Event): void {
@@ -70,6 +72,19 @@ export class PdModalNajaAdapter implements AjaxModal {
 			width: this.getWidth(element),
 			className: this.getClassName(element)
 		}
+	}
+
+	public resetContent(): void {
+		const snippets = this.pdModal.element.querySelectorAll<HTMLElement>(`#${this.reservedSnippetIds.join(', #')}`)
+
+		snippets.forEach((snippet: HTMLElement) => {
+			// Title and content are reset by PdModal itself
+			if (snippet === this.pdModal.title || snippet === this.pdModal.content) {
+				return
+			}
+
+			snippet.replaceChildren()
+		})
 	}
 
 	public setOptions(): void {
