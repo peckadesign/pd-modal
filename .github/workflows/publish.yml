@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node 📦
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: lts/*
           cache: npm
@@ -31,12 +31,14 @@ jobs:
           path: dist/
 
   release:
-    name: Release
+    name: GitHub Release
     runs-on: ubuntu-latest
     needs: [build]
+    permissions:
+      contents: write
     steps:
       - name: Checkout 🛎
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download artifacts 🧩
         uses: actions/download-artifact@v4
@@ -64,9 +66,12 @@ jobs:
     name: Publish (public)
     runs-on: ubuntu-latest
     needs: [build]
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout 🛎
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download artifacts 🧩
         uses: actions/download-artifact@v4
@@ -75,15 +80,13 @@ jobs:
           path: dist/
 
       - name: Setup Node 📦
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: lts/*
           registry-url: 'https://registry.npmjs.org'
 
       - name: Publish release 🕊️
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+        run: npm publish --provenance --access public
 
   publishPrivate:
     name: Publish (private)
@@ -91,7 +94,7 @@ jobs:
     needs: [build]
     steps:
       - name: Checkout 🛎
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download artifacts 🧩
         uses: actions/download-artifact@v4
@@ -100,7 +103,7 @@ jobs:
           path: dist/
 
       - name: Setup Node 📦
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: lts/*
           registry-url: 'https://npm.pkg.github.com'
