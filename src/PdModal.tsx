@@ -234,6 +234,7 @@ export class PdModal extends EventTarget {
 		}
 
 		const opener = this.opener
+		const scrollTop = document.scrollingElement?.scrollTop
 
 		this.dispatchEvent(new CustomEvent('beforeClose', { detail: { opener, event } }))
 
@@ -252,6 +253,12 @@ export class PdModal extends EventTarget {
 			delete document.documentElement.dataset.modalScrollbarOffset
 
 			delete this.element.dataset.modalClosing
+
+			// Restore the scroll position after removing `overflow: hidden` (`data-modal-open`). iOS Safari resets
+			// scroll to 0 when `overflow: hidden` is removed from `scrollingElement`.
+			if (scrollTop) {
+				document.scrollingElement!.scrollTop = scrollTop
+			}
 
 			this.dispatchEvent(new CustomEvent('afterClose', { detail: { opener, event } }))
 
