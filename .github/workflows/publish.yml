@@ -47,20 +47,20 @@ jobs:
           path: dist/
 
       - name: Create release draft 🕊️
-        uses: softprops/action-gh-release@v2
-        with:
-          draft: true
-          files: |
-            dist/PdModal.esm.js
-            dist/PdModal.esm.js.map
-            dist/PdModal.js
-            dist/PdModal.js.map
-            dist/PdModal.min.js
-            dist/PdModal.min.js.map
-            dist/PdModalNajaAdapter.js
-            dist/PdModalNajaAdapter.js.map
-            dist/PdModalNajaAdapter.min.js
+        run: |
+          gh release create "${{ github.ref_name }}" --draft --target "${{ github.sha }}" \
+            dist/PdModal.esm.js \
+            dist/PdModal.esm.js.map \
+            dist/PdModal.js \
+            dist/PdModal.js.map \
+            dist/PdModal.min.js \
+            dist/PdModal.min.js.map \
+            dist/PdModalNajaAdapter.js \
+            dist/PdModalNajaAdapter.js.map \
+            dist/PdModalNajaAdapter.min.js \
             dist/PdModalNajaAdapter.min.js.map
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publishPublic:
     name: Publish (public)
