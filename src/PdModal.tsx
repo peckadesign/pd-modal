@@ -133,6 +133,7 @@ export class PdModal extends EventTarget {
 		this.a11yDialog.on('hide', this.dialogOnHide.bind(this))
 
 		this.window.addEventListener('click', this.delegateWindowClick.bind(this))
+		this.element.addEventListener('click', this.preventCloserDefault.bind(this), true)
 	}
 
 	public registerContentLoader(contentLoader: ContentLoader): ContentLoader {
@@ -453,6 +454,21 @@ export class PdModal extends EventTarget {
 	private delegateWindowClick(event: Event): void {
 		if (event.target === this.window) {
 			this.overlay.click()
+		}
+	}
+
+	// a11y-dialog v8 delegates closer clicks (capture, on document) and calls hide(), but never calls
+	// preventDefault(). A closer that is a link or a submit control would still perform its default action
+	// (navigation / form submit) on top of closing. We restore the pre-v8 behavior by cancelling the default action
+	// for any closer. Registered in the capture phase so it runs while the modal element is still on the event's
+	// propagation path, regardless of when a11y-dialog detaches the element.
+	private preventCloserDefault(event: Event): void {
+		if (!(event.target instanceof Element)) {
+			return
+		}
+
+		if (event.target.closest(this.a11yDialogCloserSelector)) {
+			event.preventDefault()
 		}
 	}
 
