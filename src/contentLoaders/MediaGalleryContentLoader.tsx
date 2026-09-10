@@ -1,4 +1,4 @@
-import { isNonEmptyToken, toArray, toggleClasses } from '../utils'
+import { isNonEmptyToken, stripTags, toArray, toggleClasses } from '../utils'
 import { ContentLoader, ContentLoaderListener, PdModal, PdModalOpener } from '../PdModal'
 import * as React from 'jsx-dom'
 import { BaseContentLoader } from './BaseContentLoader'
@@ -198,7 +198,7 @@ export class MediaGalleryContentLoader extends BaseContentLoader implements Cont
 						src={opener.dataset.modalThumbnail}
 						srcSet={opener.dataset.modalThumbnailSrcset}
 						className="pd-modal__thumbnail"
-						alt={thumbnailTitle}
+						alt={stripTags(this.modal.sanitize(thumbnailTitle))}
 					/>
 				</a>
 			) as HTMLAnchorElement
@@ -476,7 +476,9 @@ export class MediaGalleryContentLoader extends BaseContentLoader implements Cont
 		const mediaBoxElement = (
 			<figure class="pd-modal__media-box">
 				{mediaElement}
-				{description ? <figcaption class="pd-modal__media-caption">{description}</figcaption> : null}
+				{description ? (
+					<figcaption class="pd-modal__media-caption" innerHTML={modal.sanitize(description)}></figcaption>
+				) : null}
 			</figure>
 		) as HTMLElement
 
@@ -511,7 +513,7 @@ export class MediaGalleryContentLoader extends BaseContentLoader implements Cont
 		const srcset = opener.dataset.modalSrcset
 		const sizes = opener.dataset.modalSizes || this.options.sizes
 
-		image.alt = title
+		image.alt = stripTags(modal.sanitize(title))
 		image.classList.add('pd-modal__media--image')
 
 		if (!srcset) {

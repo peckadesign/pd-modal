@@ -11,7 +11,10 @@ export type PdModalOptions = {
 	template?: () => HTMLElement
 	spinner?: Element
 	i18n?: Record<string, I18nEntry>
+	sanitizer?: PdModalSanitizer
 }
+
+export type PdModalSanitizer = (html: string) => string
 
 export type I18nEntry = {
 	close: string
@@ -279,9 +282,16 @@ export class PdModal extends EventTarget {
 		return matchedContentLoader
 	}
 
+	// Content coming from the opener (`data-modal-*` attributes, `alt` / `title` of a nested image) is rendered as HTML.
+	// It originates from the same document, so no sanitization is applied by default; pass the `sanitizer` option to
+	// run it through e.g. DOMPurify on projects where those attributes carry untrusted data.
+	public sanitize(html: string): string {
+		return this.options.sanitizer ? this.options.sanitizer(html) : html
+	}
+
 	public setModalTitle(title?: string): void {
 		if (title) {
-			this.title.innerHTML = title
+			this.title.innerHTML = this.sanitize(title)
 			this.title.hidden = false
 		} else {
 			// Default heading, only for screen reader purposes, therefore hidden with the ` hidden ` attribute

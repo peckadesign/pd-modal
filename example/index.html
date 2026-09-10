@@ -280,6 +280,24 @@ modal.registerContentLoader(new HTMLContentLoader(modal))</code></pre>
 						<td><code>undefined</code></td>
 						<td>Allows you to add custom language or override existing ones. By default, the plugin supports <code>en</code>, <code>de</code>, <code>cs</code> and <code>sk</code>.</td>
 					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><code>sanitizer</code></th>
+						<td><pre class="my-0 p-0"><code class="language-typescript">((html: string) => string) | undefined</code></pre></td>
+						<td><code>undefined</code></td>
+						<td>The modal title and the media caption are rendered as HTML, so they can contain formatting. Both are read from the opener element (<code>data-modal-title</code> and <code>data-modal-description</code>, with the <code>alt</code> and <code>title</code> of a nested image as a fallback), which means they come from the same document as the modal itself. Therefore, they are inserted as-is by default.
+
+							<p>If those values carry data you do not control, pass a sanitizer function. It receives the HTML string and its return value is inserted into the modal.</p>
+
+							<pre class="p-0"><code class="language-typescript">const modal = new PdModal({
+	sanitizer: (html) => DOMPurify.sanitize(html)
+})</code></pre>
+
+							<p class="flex gap-2 p-4 rounded-md bg-orange-50">
+								<span>⚠️</span>
+								<span>The sanitizer is not applied to the content loaded by <code>HTMLContentLoader</code> or by an ajax loader. Only the title and the media caption pass through it.</span>
+							</p>
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		</div>
@@ -336,6 +354,10 @@ modal.registerContentLoader(new HTMLContentLoader(modal))</code></pre>
 					<tr>
 						<th scope="row" class="py-2 align-baseline"><pre class="my-0 p-0"><code class="language-typescript">removeListenersFromOpener(): void</code></pre></th>
 						<td>Similar to the method above, but only removes listeners defined by data attributes on opener element. See the section about data attributes below for more information why this method exists.</td>
+					</tr>
+					<tr>
+						<th scope="row" class="py-2 align-baseline"><pre class="my-0 p-0"><code class="language-typescript">sanitize(html: string): string</code></pre></th>
+						<td>Runs the passed string through the <code>sanitizer</code> option and returns the result. When no sanitizer is configured, the string is returned unchanged. Call this in a custom content loader before inserting HTML that originates from the opener element.</td>
 					</tr>
 				</tbody>
 			</table>
@@ -465,6 +487,10 @@ modal.registerContentLoader(new HTMLContentLoader(modal))</code></pre>
 		<p>Using <code>data-modal-related</code> you can link multiple media together. When this happens, the pager is shown. When you want to load e.g. YouTube video, you have to use <code>data-modal-iframe</code> &ndash; this attribute is necessary whenever <code>iframe</code> should be used. Otherwise, the <code>img</code> element will be used. Using <code>data-modal-media</code> is optional when other matcher condition is evaluated as truthy.</p>
 
 		<p>The class names of certain elements can be added using data attributes on the opening element. The <code>data-modal-thumbnail-link-class-name</code> would add a class name to the thumbnail link, while the <code>data-modal-iframe-class-name</code> would add a class name to the iframe element (when <code>data-modal-iframe="true"</code> is used).</p>
+
+		<p>The caption below the media is taken from <code>data-modal-description</code>, or from the <code>title</code> of a nested image. It is rendered as HTML, so it can contain formatting such as <code>&lt;strong&gt;</code> or a link. The same applies to the modal title, which is read from <code>data-modal-title</code> or from the <code>alt</code> of a nested image. Use the <code>sanitizer</code> option if these values are not fully under your control.</p>
+
+		<p>Where the title is used as the <code>alt</code> of the media and of its thumbnail, the tags are stripped, so the alternative text stays plain. Keep in mind that a title is parsed as HTML there as well, which means a stray <code>&lt;</code> and everything up to the matching <code>&gt;</code> is dropped.</p>
 
 		<h4>Options</h4>
 		<div class="!max-w-full overflow-x-auto">

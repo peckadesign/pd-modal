@@ -8,6 +8,15 @@ export function isElementOverflowing(element: Element): boolean {
 	return element && element.scrollHeight > document.documentElement.clientHeight
 }
 
+// Parsing into a `template` keeps the content inert, so no resource is loaded and no event handler is fired while the
+// tags are being stripped.
+export function stripTags(html: string): string {
+	const template = document.createElement('template')
+	template.innerHTML = html
+
+	return template.content.textContent ?? ''
+}
+
 export function kebabize(str: string): string {
 	return str.replace(/[A-Z]+(?![a-z])|[A-Z]/g, ($, ofs) => (ofs ? '-' : '') + $.toLowerCase())
 }
