@@ -1,6 +1,13 @@
 import * as React from 'jsx-dom'
 import A11yDialog from 'a11y-dialog'
-import { getFunction, isBodyOverflowing, isElementOverflowing, kebabize, TypedEventListener } from './utils'
+import {
+	getFunction,
+	isBodyOverflowing,
+	isElementOverflowing,
+	kebabize,
+	parseCssTimeToMs,
+	TypedEventListener
+} from './utils'
 
 export type PdModalOptions = {
 	width: number
@@ -246,8 +253,8 @@ export class PdModal extends EventTarget {
 		this._isOpen = false
 		this.opener = null
 
-		const closingDuration = parseInt(
-			getComputedStyle(this.element).getPropertyValue('--pd-modal-closing-duration') || '0'
+		const closingDuration = parseCssTimeToMs(
+			getComputedStyle(this.element).getPropertyValue('--pd-modal-closing-duration')
 		)
 
 		setTimeout(() => {

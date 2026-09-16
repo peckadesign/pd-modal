@@ -21,6 +21,18 @@ export function kebabize(str: string): string {
 	return str.replace(/[A-Z]+(?![a-z])|[A-Z]/g, ($, ofs) => (ofs ? '-' : '') + $.toLowerCase())
 }
 
+// CSS minifiers rewrite time values to their shortest form, so a `200ms` written in the stylesheet reaches
+// `getComputedStyle()` as `.2s`. Both the unit and the leading dot have to be handled explicitly.
+export function parseCssTimeToMs(value: string): number {
+	const time = parseFloat(value)
+
+	if (Number.isNaN(time)) {
+		return 0
+	}
+
+	return /ms\s*$/.test(value) ? time : time * 1000
+}
+
 export function toArray<T>(value?: T | T[]): T[] {
 	return value === undefined ? [] : Array.isArray(value) ? value : [value]
 }
